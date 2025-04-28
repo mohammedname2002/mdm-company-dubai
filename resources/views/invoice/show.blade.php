@@ -101,9 +101,12 @@
                         </div>
                     </div>
                     <div style="text-align:center" class="auth-logo">
-                        <h2   id="tax" style="font-weight:600 !important">Tax Invoice </h2>                            </div>
+                    <h2   id="tax" style="font-weight:600 !important">Tax Invoice </h2>                            </div>
+
                     <div class="row">
+
                         <div class="col-md-6">
+
                             <div class="mt-3">
                                 <p><b>{{ $invoiceName->company->name }}</b></p>
 
@@ -133,6 +136,7 @@
                             </div>
                         </div><!-- end col -->
                     </div>
+                                            </div>
 
                     <div class="row mt-3">
                         <div class="col-9">
@@ -142,8 +146,10 @@
                                         <tr>
                                             <th>#</th>
                                             <th class="aaa">Item</th>
-                                            {{--  <th class="aaa">Price</th>  --}}
-                                            {{--  <th class="aaa">Vat</th>  --}}
+                                            {{--  <th class="aaa">Price</th>
+                                            <th class="aaa">Vat</th>
+                                             <th class="aaa">FOC</th>  --}}
+
                                             @if($invoiceName->company->discount == 0)
                                             <th class="aaa">Price </th>
                                             @else
@@ -174,8 +180,10 @@
                                        @endphp
                                             <td>{{ $loop->index + 1 }}</td>
                                             <td>{{ $product->name }}</td>
-                                            {{--  <td>{{ $product->price * $product->quantity }}</td>  --}}
-                                            {{--  <td>{{ $product->getVatAmount() }}</td>  --}}
+                                            {{--  <td>{{ $product->price * $product->quantity }}</td>
+                                            <td>{{ $product->getVatAmount() }}</td>
+                                                                                        <td>3</td>  --}}
+
                                             <td>{{$productPriceWithDiscont }}</td>
                                             <td>{{$productWithVat }}</td>
 

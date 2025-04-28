@@ -22,7 +22,7 @@ return new class extends Migration
             $table->dateTime('date_of_create'); // Date and time of creation'
             $table->dateTime('from'); // Date and time of creation
             $table->dateTime('to'); // Date and time of creation
-
+            $table->text('notes')->nullable(); // Invoice item name
             $table->timestamps();
         });
     }
