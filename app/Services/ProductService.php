@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Services;
+
 use App\Models\Company;
 
 use App\Models\Product;
@@ -7,10 +9,12 @@ use App\Models\Product;
 use Ramsey\Uuid\Rfc4122\UuidV4;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-class ProductService{
+class ProductService
+{
 
 
-    public static function make(){
+    public static function make()
+    {
         return new self();
     }
     public function index($relations = [], $count = [], $params = ['*'], $paginate = 10, $search = null): LengthAwarePaginator
@@ -29,10 +33,10 @@ class ProductService{
 
         return $query->paginate($paginate);
     }
-    public function find($id,$params=['*'],$relations = [], $count = [])
+    public function find($id, $params = ['*'], $relations = [], $count = [])
     {
 
-         return findByid(Product::class,$id,$relations,$params,$count);
+        return findByid(Product::class, $id, $relations, $params, $count);
     }
     public function create()
     {
@@ -40,44 +44,44 @@ class ProductService{
         return view('product.create');
     }
 
-    public function store($request){
+    public function store($request)
+    {
 
-        $product=Product::create([
-            'company_id'=>$request->company_id,
-            'name'=>$request->product_name,
-            'quantity'=>$request->quantity,
-            'vat'=>$request->vat,
-            'price'=>$request->price,
-            'date_of_create'=>$request->date_of_create,
-
+        $product = Product::create([
+            'company_id' => $request->company_id,
+            'name' => $request->product_name,
+            'quantity' => $request->quantity,
+            'free_items' => (int) ($request->free_items ?? 0),
+            'vat' => $request->vat,
+            'price' => $request->price,
+            'date_of_create' => $request->date_of_create,
         ]);
 
         return $product;
     }
 
-    public function update($id , $request){
+    public function update($id, $request)
+    {
 
-     $product = $this->find($id , ['*']);
+        $product = $this->find($id, ['*']);
 
         $product->update([
-                'company_id'=>$request->company_id,
-                    'name'=>$request->product_name,
-                    'quantity'=>$request->quantity,
-                    'vat'=>$request->vat,
-                    'price'=>$request->price,
-                    'date_of_create'=>$request->date_of_create,
+            'company_id' => $request->company_id,
+            'name' => $request->product_name,
+            'quantity' => $request->quantity,
+            'free_items' => (int) ($request->free_items ?? 0),
+            'vat' => $request->vat,
+            'price' => $request->price,
+            'date_of_create' => $request->date_of_create,
         ]);
 
-        return $product ;
-}
-
-    public function delete($id){
-        $product = $this->find($id , ['*']);
-        $product->delete();
-        return $product ;
-
+        return $product;
     }
 
-
-
+    public function delete($id)
+    {
+        $product = $this->find($id, ['*']);
+        $product->delete();
+        return $product;
+    }
 }

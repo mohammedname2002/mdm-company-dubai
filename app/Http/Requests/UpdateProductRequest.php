@@ -24,10 +24,13 @@ class UpdateProductRequest extends FormRequest
     public function rules()
     {
         return [
-        'product_name' => 'required|string|max:1000|min:3',
-        'price' => 'required|numeric|min:1|max:100000',
-        'vat' => 'required|numeric|min:1|max:100000',
-        'date_of_create' => 'sometimes|string',
+            'company_id' => 'required|integer|exists:companies,id',
+            'product_name' => 'required|string|max:1000|min:3',
+            'price' => 'required|numeric|min:0|max:100000',
+            'quantity' => 'required|integer|min:0|max:100000',
+            'free_items' => 'nullable|integer|min:0|max:100000',
+            'vat' => 'required|numeric|min:0|max:100',
+            'date_of_create' => 'required|date',
         ];
     }
 
@@ -44,20 +47,32 @@ class UpdateProductRequest extends FormRequest
             // Price
             'price.required' => 'The price is required.',
             'price.max' => 'The price may not exceed 100,000.',
-            'price.min' => 'The price must be at least 1.',
+            'price.min' => 'The price cannot be negative.',
             'price.numeric' => 'The price must be a valid number.',
+
+            'quantity.required' => 'The quantity is required.',
+            'quantity.integer' => 'The quantity must be a whole number.',
+            'quantity.min' => 'The quantity must be at least 0.',
+            'quantity.max' => 'The quantity may not exceed 100,000.',
 
             // VAT
             'vat.required' => 'The VAT is required.',
-            'vat.max' => 'The VAT may not exceed 100,000.',
-            'vat.min' => 'The VAT must be at least 1.',
+            'vat.max' => 'The VAT may not exceed 100%.',
+            'vat.min' => 'The VAT cannot be negative.',
             'vat.numeric' => 'The VAT must be a valid number.',
 
             // Date of Create
-            'date_of_create.required' => 'The date of create must be a valid date format.',
+            'date_of_create.required' => 'The date of create is required.',
+            'date_of_create.date' => 'The date of create must be a valid date format.',
 
+            // Company
+            'company_id.required' => 'Please select a company.',
+            'company_id.exists' => 'The selected company is invalid.',
+
+            // Free Items
+            'free_items.integer' => 'Free items must be a whole number.',
+            'free_items.min' => 'Free items cannot be negative.',
+            'free_items.max' => 'Free items may not exceed 100,000.',
         ];
-
     }
-
 }

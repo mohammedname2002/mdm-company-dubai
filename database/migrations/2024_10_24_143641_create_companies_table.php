@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->nullable()->default('Company');
             $table->string('trn')->nullable()->default('trn');
+            $table->string('phone')->nullable()->default('');
             $table->string('address')->nullable()->default('address');
             $table->float('discount', 5, 2)->default(0); // Discount in percentage
             $table->timestamps();

@@ -93,7 +93,8 @@
                         <div class="clearfix">
                             <div class="float-start">
                                 <div class="auth-logo">
-                                    <img src="{{ asset('assets/images/logo-light.jpg') }}" alt="" height="50">
+                                    <img src="{{ asset('assets/images/logo-light.jpg') }}" alt=""
+                                        height="50">
                                 </div>
                             </div>
                             <div class="float-end">
@@ -110,9 +111,11 @@
                             </div><!-- end col -->
                             <div class="col-md-4 offset-md-2">
                                 <div class="mt-3 float-end">
-                                    <p><strong>Order Date:</strong> <span>{{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $invoiceName->date_of_create)->format('Y-m-d') }}</span></p>
+                                    <p><strong>Order Date:</strong>
+                                        <span>{{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $invoiceName->date_of_create)->format('Y-m-d') }}</span>
+                                    </p>
                                     <p><strong>Order Status:</strong>
-                                        @if($invoiceName->status == 'paid')
+                                        @if ($invoiceName->status == 'paid')
                                             <span class="badge bg-success">{{ $invoiceName->status }}</span>
                                         @else
                                             <span class="badge bg-danger">{{ $invoiceName->status }}</span>
@@ -139,14 +142,19 @@
                                         </thead>
                                         <tbody>
                                             @foreach ($products as $product)
-                                            <tr>
-                                                <td>{{ $loop->index + 1 }}</td>
-                                                <td>{{ $product->name }}</td>
-                                                <td>{{ $product->price * $product->quantity }}</td>
-                                                <td>{{ $product->getVatAmount() }}</td>
-                                                <td>{{ $product->price * $product->quantity - ($product->price * $product->quantity * ($invoiceName->company->discount / 100)) }}</td>
-                                                <td>{{ $product->price * $product->quantity - ($product->price * $product->quantity * ($invoiceName->company->discount / 100)) + $product->getVatAmount() }}</td>
-                                            </tr>
+                                                <tr>
+                                                    <td>{{ $loop->index + 1 }}</td>
+                                                    <td>({{ $product->quantity }}@if (($product->free_items ?? 0) > 0)
+                                                            +{{ $product->free_items }}
+                                                        @endif)
+                                                        {{ $product->name }}</td>
+                                                    <td>{{ $product->price * $product->quantity }}</td>
+                                                    <td>{{ $product->getVatAmount() }}</td>
+                                                    <td>{{ $product->price * $product->quantity - $product->price * $product->quantity * ($invoiceName->company->discount / 100) }}
+                                                    </td>
+                                                    <td>{{ $product->price * $product->quantity - $product->price * $product->quantity * ($invoiceName->company->discount / 100) + $product->getVatAmount() }}
+                                                    </td>
+                                                </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
@@ -173,9 +181,11 @@
                             <div class="col-12 d-flex justify-content-end">
                                 <div class="border p-3 bg-light" style="border-radius: 8px; width: 300px;">
                                     <div class="text-end">
-                                        <p><strong>Address:</strong> Office 153-101 King Mohammed Abdulaziz Mohammed bin Faris - Deira - Al Murar</p>
+                                        <p><strong>Address:</strong> Office 153-101 King Mohammed Abdulaziz Mohammed bin
+                                            Faris - Deira - Al Murar</p>
                                         <p><strong>TRN:</strong> 104718581200003</p>
-                                        <p><strong>Website:</strong> <a href="https://example.com" target="_blank">MDM.com</a></p>
+                                        <p><strong>Website:</strong> <a href="https://example.com"
+                                                target="_blank">MDM.com</a></p>
                                     </div>
                                 </div>
                             </div>

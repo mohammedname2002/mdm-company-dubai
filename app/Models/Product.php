@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Product extends Model
 {
     use HasFactory;
-    protected $fillable = ['company_id', 'date_of_create', 'name', 'price', 'vat' , 'quantity'];
+    protected $fillable = ['company_id', 'date_of_create', 'name', 'price', 'vat', 'quantity', 'free_items'];
 
     public function company(): BelongsTo
     {

@@ -13,7 +13,7 @@ class StoreInvoiceRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,25 @@ class StoreInvoiceRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'status' => 'required|in:paid,unpaid',
+            'company_id' => 'required|integer|exists:companies,id',
+            'from' => 'required|date',
+            'to' => 'required|date|after_or_equal:from',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'status.required' => 'The invoice status is required.',
+            'status.in' => 'The status must be either paid or unpaid.',
+            'company_id.required' => 'Please select a company.',
+            'company_id.exists' => 'The selected company is invalid.',
+            'from.required' => 'The start date is required.',
+            'from.date' => 'The start date must be a valid date.',
+            'to.required' => 'The end date is required.',
+            'to.date' => 'The end date must be a valid date.',
+            'to.after_or_equal' => 'The end date must be on or after the start date.',
         ];
     }
 }

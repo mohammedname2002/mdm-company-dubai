@@ -1,15 +1,15 @@
 <?php
+
 namespace App\Services;
 
 use App\Models\Company;
-use id;
-
-
 use Illuminate\Pagination\LengthAwarePaginator;
 
-class CompanyService{
+class CompanyService
+{
 
-    public static function make(){
+    public static function make()
+    {
         return new self();
     }
 
@@ -29,55 +29,52 @@ class CompanyService{
 
         return $query->paginate($paginate);
     }
-    public function find($id,$params=['*'],$relations = [], $count = [])
+    public function find($id, $params = ['*'], $relations = [], $count = [])
     {
 
-         return findByid(Company::class,$id,$relations,$params,$count);
+        return findByid(Company::class, $id, $relations, $params, $count);
     }
     public function create()
     {
         return view('company.create');
     }
 
-    public function store($request){
+    public function store($request)
+    {
 
-        $company=Company::create([
-            'name'=>$request->name,
-            'trn'=>$request->trn,
-            'address'=>$request->address,
-
-            'discount'=>$request->discount,
+        $company = Company::create([
+            'name' => $request->name,
+            'trn' => $request->trn ?? null,
+            'address' => $request->address ?? null,
+            'phone' => $request->phone ?? null,
+            'discount' => $request->discount,
         ]);
 
         return $company;
     }
 
-    public function update($id , $request){
+    public function update($id, $request)
+    {
 
-        $company = $this->find($id , ['*']);
+        $company = $this->find($id, ['*']);
 
         $company->update([
-            'trn'=>$request->trn,
-            'address'=>$request->address,
-            'name'=>$request->company_name,
-            'discount'=>$request->discount,
+            'name' => $request->company_name,
+            'trn' => $request->trn ?? null,
+            'address' => $request->address ?? null,
+            'phone' => $request->phone ?? null,
+            'discount' => $request->discount,
         ]);
-        return  $company ;
+        return  $company;
+    }
 
+    public function delete($id)
+    {
 
-
-}
-
-    public function delete($id){
-
-        $company = $this->find($id , ['*']);
+        $company = $this->find($id, ['*']);
 
         $company->delete();
 
-        return  $company ;
-
+        return  $company;
     }
-
-
-
 }
