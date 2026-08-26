@@ -55,6 +55,7 @@ class ProductService
             'vat' => $request->vat,
             'price' => $request->price,
             'date_of_create' => $request->date_of_create,
+            'apply_company_discount' => $request->boolean('apply_company_discount'),
         ]);
 
         return $product;
@@ -73,6 +74,7 @@ class ProductService
             'vat' => $request->vat,
             'price' => $request->price,
             'date_of_create' => $request->date_of_create,
+            'apply_company_discount' => $request->boolean('apply_company_discount'),
         ]);
 
         return $product;

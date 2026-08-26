@@ -129,6 +129,11 @@
                         <div class="row mt-3">
                             <div class="col-9">
                                 <div class="table table-bordered border-black mb-0">
+                                    @php
+                                        $companyDisc = (float) ($invoiceName->company->discount ?? 0);
+                                        $showDiscountInHeaders = $companyDisc > 0
+                                            && $products->contains(fn ($p) => (bool) ($p->apply_company_discount ?? true));
+                                    @endphp
                                     <table class="table table-bordered">
                                         <thead>
                                             <tr>
@@ -136,12 +141,25 @@
                                                 <th class="aaa">Item</th>
                                                 <th class="aaa">Price</th>
                                                 <th class="aaa">Vat</th>
-                                                <th class="aaa">Price with Discount</th>
-                                                <th class="aaa">Price with Discount & Vat</th>
+                                                @if ($showDiscountInHeaders)
+                                                    <th class="aaa">Price with Discount ({{ $invoiceName->company->discount }}%)</th>
+                                                @else
+                                                    <th class="aaa">Price</th>
+                                                @endif
+                                                <th class="aaa">Vat</th>
+                                                @if ($showDiscountInHeaders)
+                                                    <th class="aaa">Price with Discount ({{ $invoiceName->company->discount }}%) &amp; Vat</th>
+                                                @else
+                                                    <th class="aaa">Price with Vat</th>
+                                                @endif
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach ($products as $product)
+                                                @php
+                                                    $companyDisc = (float) ($invoiceName->company->discount ?? 0);
+                                                    $priceAfterDisc = $product->linePriceAfterDiscount($companyDisc);
+                                                @endphp
                                                 <tr>
                                                     <td>{{ $loop->index + 1 }}</td>
                                                     <td>({{ $product->quantity }}@if (($product->free_items ?? 0) > 0)
@@ -150,10 +168,8 @@
                                                         {{ $product->name }}</td>
                                                     <td>{{ $product->price * $product->quantity }}</td>
                                                     <td>{{ $product->getVatAmount() }}</td>
-                                                    <td>{{ $product->price * $product->quantity - $product->price * $product->quantity * ($invoiceName->company->discount / 100) }}
-                                                    </td>
-                                                    <td>{{ $product->price * $product->quantity - $product->price * $product->quantity * ($invoiceName->company->discount / 100) + $product->getVatAmount() }}
-                                                    </td>
+                                                    <td>{{ $priceAfterDisc }}</td>
+                                                    <td>{{ $priceAfterDisc + $product->getVatAmount() }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>

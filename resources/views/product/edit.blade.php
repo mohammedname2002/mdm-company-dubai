@@ -135,6 +135,23 @@
 
                             </div>
 
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <input type="hidden" name="apply_company_discount" value="0">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="apply_company_discount"
+                                            value="1" id="apply_company_discount"
+                                            {{ old('apply_company_discount', $product->apply_company_discount ?? true) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="apply_company_discount">
+                                            Apply company discount to this product
+                                        </label>
+                                    </div>
+                                    @error('apply_company_discount')
+                                        <span class="text-danger d-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+
                             <button type="submit" class="btn btn-primary waves-effect waves-light">Update</button>
 
                         </form>

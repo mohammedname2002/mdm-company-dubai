@@ -71,6 +71,33 @@
                 page-break-inside: avoid !important;
             }
 
+            /* 3-page print layout */
+            body.multi-page-print table {
+                page-break-inside: auto;
+            }
+
+            body.multi-page-print tr,
+            body.multi-page-print td,
+            body.multi-page-print th {
+                page-break-inside: auto !important;
+            }
+
+            body.multi-page-print .invoice-normal-print {
+                display: none !important;
+            }
+
+            body.multi-page-print .invoice-multi-print {
+                display: block !important;
+            }
+
+            body.multi-page-print .print-invoice-page {
+                page-break-after: always;
+            }
+
+            body.multi-page-print .print-invoice-page:last-child {
+                page-break-after: auto;
+            }
+
             .table th,
             .table td {
                 font-size: 8px !important;
@@ -93,9 +120,74 @@
 
         }
     </style>
+    <style>
+        .invoice-multi-print {
+            display: none;
+        }
+    </style>
 @endsection
 
 @section('content')
+    @php
+        $subTotalPrice = 0;
+        $subTotalVat = 0;
+        $subTotalDiscounted = 0;
+        $subTotalDiscountedVat = 0;
+        $subTotalAmount = 0;
+        foreach ($products as $product) {
+            $companyDisc = (float) ($invoiceName->company->discount ?? 0);
+            $productPriceWithDiscont = $product->linePriceAfterDiscount($companyDisc);
+            $productPriceWithDiscontAndVat =
+                $productPriceWithDiscont + ($productPriceWithDiscont * $product->vat) / 100;
+            $unitVat = ($product->price * $product->vat) / 100;
+            $productWithVat = ($productPriceWithDiscont * $product->vat) / 100;
+
+            $subTotalPrice += $product->price * $product->quantity;
+            $subTotalVat += $unitVat * $product->quantity;
+            $subTotalDiscounted += $productPriceWithDiscont;
+            $subTotalDiscountedVat += $productWithVat;
+            $subTotalAmount += $productPriceWithDiscontAndVat;
+        }
+
+        $printPage1Products = $products->take(2);
+        $printPage2Products = $products->slice(2, 1);
+        $printPage3Products = $products->slice(3);
+        $rowStarts = [0, 2, 3];
+
+        $calcPageTotals = function ($pageProducts) use ($invoiceName) {
+            $companyDisc = (float) ($invoiceName->company->discount ?? 0);
+            $subTotalPrice = 0;
+            $subTotalVat = 0;
+            $subTotalDiscounted = 0;
+            $subTotalDiscountedVat = 0;
+            $subTotalAmount = 0;
+            foreach ($pageProducts as $product) {
+                $productPriceWithDiscont = $product->linePriceAfterDiscount($companyDisc);
+                $productPriceWithDiscontAndVat =
+                    $productPriceWithDiscont + ($productPriceWithDiscont * $product->vat) / 100;
+                $unitVat = ($product->price * $product->vat) / 100;
+                $productWithVat = ($productPriceWithDiscont * $product->vat) / 100;
+
+                $subTotalPrice += $product->price * $product->quantity;
+                $subTotalVat += $unitVat * $product->quantity;
+                $subTotalDiscounted += $productPriceWithDiscont;
+                $subTotalDiscountedVat += $productWithVat;
+                $subTotalAmount += $productPriceWithDiscontAndVat;
+            }
+
+            return compact(
+                'subTotalPrice',
+                'subTotalVat',
+                'subTotalDiscounted',
+                'subTotalDiscountedVat',
+                'subTotalAmount'
+            );
+        };
+
+        $page1Totals = $calcPageTotals($printPage1Products);
+        $page2Totals = $calcPageTotals($printPage2Products);
+        $page3Totals = $calcPageTotals($printPage3Products);
+    @endphp
     <div class="container-fluid">
 
         <!-- start page title -->
@@ -112,149 +204,88 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <!-- Logo & title -->
-                        <div class="clearfix">
-                            <div class="float-start">
-                                <div class="auth-logo">
-                                    <img src="{{ asset('assets/images/mdm.png') }}" alt="" height="70">
-                                </div>
-                            </div>
-
-                            {{--  <div class="float-end">
-                                <img src="{{ asset('assets/images/oge.png') }}" alt="" height="70">
-                            </div>  --}}
-                        </div>
-                        <div style="text-align:center" class="auth-logo">
-                            <h2 id="tax" style="font-weight:600 !important">Tax Invoice </h2>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mt-3">
-                                    <p><b>{{ $invoiceName->company->name }}</b></p>
-
-                                    @if ($invoiceName->company->trn)
-                                        <p><b>TRN: {{ $invoiceName->company->trn }}</b></p>
-                                    @endif
-
-                                    @if ($invoiceName->company->address)
-                                        <p><b>Address: {{ $invoiceName->company->address }}</b></p>
-                                    @endif
-                                    @if ($invoiceName->company->phone)
-                                        <p><b>Phone: {{ $invoiceName->company->phone }}</b></p>
-                                    @endif
-
-                                </div>
-                            </div><!-- end col -->
-                            <div class="col-md-4 offset-md-2">
-                                <div class="mt-3 float-end">
-                                    <p><strong>Order Date:</strong>
-                                        <span>{{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $invoiceName->date_of_create)->format('Y-m-d') }}</span>
-                                    </p>
-                                    <p><strong>Order Status:</strong>
-                                        @if ($invoiceName->status == 'paid')
-                                            <span class="badge bg-success">{{ $invoiceName->status }}</span>
-                                        @else
-                                            <span class="badge bg-danger">{{ $invoiceName->status }}</span>
-                                        @endif
-                                    </p>
-                                    <p><strong>Order No.:</strong> <span>{{ $invoiceName->invoice_number }}</span></p>
-                                </div>
-                            </div><!-- end col -->
-                        </div>
+                    <div class="invoice-normal-print">
+                        @include('invoice.partials.print-header')
                     </div>
 
-                    <div class="row mt-3">
+                    <div class="row mt-3 invoice-normal-print">
                         <div class="col-9">
                             <div class="table table-bordered border-black mb-0">
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th class="aaa">Item</th>
-                                            <th class="aaa">Price</th> <!-- New: Price before discount -->
-                                            <th class="aaa">VAT</th> <!-- New: VAT before discount -->
-                                            @if ($invoiceName->company->discount == 0)
-                                                <th class="aaa">Price </th>
-                                            @else
-                                                <th class="aaa">Price with Discount
-                                                    ({{ $invoiceName->company->discount }}%)</th>
-                                            @endif
-                                            <th class="aaa">Vat </th>
-                                            @if ($invoiceName->company->discount == 0)
-                                                <th class="aaa">Price with Vat</th>
-                                            @else
-                                                <th class="aaa">Price with Discount
-                                                    ({{ $invoiceName->company->discount }}%) &amp; Vat</th>
-                                            @endif
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @php
-                                            $subTotalPrice = 0;
-                                            $subTotalVat = 0;
-                                            $subTotalDiscounted = 0;
-                                            $subTotalDiscountedVat = 0;
-                                            $subTotalAmount = 0;
-                                        @endphp
-                                        @foreach ($products as $product)
-                                            @php
-                                                $productPriceWithDiscont =
-                                                    $product->price * $product->quantity -
-                                                    $product->price *
-                                                        $product->quantity *
-                                                        ($invoiceName->company->discount / 100);
-                                                $productPriceWithDiscontAndVat =
-                                                    $productPriceWithDiscont +
-                                                    ($productPriceWithDiscont * $product->vat) / 100;
-                                                $productWithVat = ($productPriceWithDiscont * $product->vat) / 100;
-                                                $unitVat = ($product->price * $product->vat) / 100;
-                                                $unitPriceAfterDiscount =
-                                                    $product->price -
-                                                    $product->price * ($invoiceName->company->discount / 100);
-                                                $unitVatAfterDiscount = ($unitPriceAfterDiscount * $product->vat) / 100;
-
-                                                // Subtotals
-                                                $subTotalPrice += $product->price * $product->quantity;
-                                                $subTotalVat += $unitVat * $product->quantity;
-                                                $subTotalDiscounted += $productPriceWithDiscont;
-                                                $subTotalDiscountedVat += $productWithVat;
-                                                $subTotalAmount += $productPriceWithDiscontAndVat;
-                                            @endphp
-                                            <tr>
-                                                <td>{{ $loop->index + 1 }}</td>
-                                                <td class="product-name-cell">
-                                                    ({{ $product->quantity }}@if (($product->free_items ?? 0) > 0)
-                                                        +{{ $product->free_items }}
-                                                    @endif)
-                                                    {{ $product->name }}</td>
-                                                <td>{{ number_format($product->price * $product->quantity, 2) }}</td>
-                                                <td>{{ number_format($unitVat * $product->quantity, 2) }}</td>
-                                                @if ($invoiceName->company->discount == 0)
-                                                    <td>{{ number_format($product->price * $product->quantity, 2) }}</td>
-                                                @else
-                                                    <td>{{ number_format($productPriceWithDiscont, 2) }}</td>
-                                                @endif
-                                                <td>{{ number_format($productWithVat, 2) }}</td>
-                                                <td>{{ number_format($productPriceWithDiscontAndVat, 2) }}</td>
-                                            </tr>
-                                        @endforeach
-                                        <!-- Sub Total Row -->
-                                        <tr style="font-weight: bold; background: #f9f9f9;">
-                                            <td colspan="2" style="text-align:right;">Sub Total</td>
-                                            <td>{{ number_format($subTotalPrice, 2) }}</td>
-                                            <td>{{ number_format($subTotalVat, 2) }}</td>
-                                            <td>{{ number_format($subTotalDiscounted, 2) }}</td>
-                                            <td>{{ number_format($subTotalDiscountedVat, 2) }}</td>
-                                            <td>{{ number_format($subTotalAmount, 2) }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                @include('invoice.partials.items-table', [
+                                    'products' => $products,
+                                    'invoiceName' => $invoiceName,
+                                    'showSubtotal' => true,
+                                    'subTotalPrice' => $subTotalPrice,
+                                    'subTotalVat' => $subTotalVat,
+                                    'subTotalDiscounted' => $subTotalDiscounted,
+                                    'subTotalDiscountedVat' => $subTotalDiscountedVat,
+                                    'subTotalAmount' => $subTotalAmount,
+                                ])
                             </div>
                         </div>
                     </div>
 
-                    <div class="row">
+                    {{-- 3-page print: page 1 = 2 products, page 2 = 1 product, page 3 = last products --}}
+                    <div class="invoice-multi-print">
+                        {{-- Page 1: header + first 2 products + page total + footer --}}
+                        <div class="print-invoice-page">
+                            @include('invoice.partials.print-header')
+                            <div class="row mt-3">
+                                <div class="col-9">
+                                    <div class="table table-bordered border-black mb-0">
+                                        @include('invoice.partials.items-table', array_merge([
+                                            'products' => $printPage1Products,
+                                            'invoiceName' => $invoiceName,
+                                            'rowStart' => $rowStarts[0],
+                                            'showSubtotal' => true,
+                                            'subtotalLabel' => 'Total',
+                                        ], $page1Totals))
+                                    </div>
+                                </div>
+                            </div>
+                            @include('invoice.partials.print-footer')
+                        </div>
+
+                        {{-- Page 2: header + 3rd product + page total + footer --}}
+                        <div class="print-invoice-page">
+                            @include('invoice.partials.print-header')
+                            <div class="row mt-3">
+                                <div class="col-9">
+                                    <div class="table table-bordered border-black mb-0">
+                                        @include('invoice.partials.items-table', array_merge([
+                                            'products' => $printPage2Products,
+                                            'invoiceName' => $invoiceName,
+                                            'rowStart' => $rowStarts[1],
+                                            'showSubtotal' => true,
+                                            'subtotalLabel' => 'Total',
+                                        ], $page2Totals))
+                                    </div>
+                                </div>
+                            </div>
+                            @include('invoice.partials.print-footer')
+                        </div>
+
+                        {{-- Page 3: last products + page total + footer --}}
+                        <div class="print-invoice-page">
+                            @include('invoice.partials.print-header')
+                            <div class="row mt-3">
+                                <div class="col-9">
+                                    <div class="table table-bordered border-black mb-0">
+                                        @include('invoice.partials.items-table', array_merge([
+                                            'products' => $printPage3Products,
+                                            'invoiceName' => $invoiceName,
+                                            'rowStart' => $rowStarts[2],
+                                            'showSubtotal' => true,
+                                            'subtotalLabel' => 'Total',
+                                        ], $page3Totals))
+                                    </div>
+                                </div>
+                            </div>
+                            @include('invoice.partials.print-footer')
+                        </div>
+                    </div>
+
+                    <div class="row invoice-normal-print">
                         <div class="col-sm-6">
                             <div class="clearfix pt-5">
                                 <h4 class="text-muted">Notes:</h4>
@@ -271,18 +302,8 @@
                     </div>
 
                     <!-- Footer Box -->
-                    <div class="row mt-4">
-                        <div class="col-12 d-flex justify-content-end">
-                            <div class="border p-3 bg-light" style="border-radius: 8px; width: 300px;">
-                                <div class="text-end">
-                                    <p><strong>Address:</strong> Office 153-101 King Mohammed Abdulaziz Mohammed bin Faris -
-                                        Deira - Al Murar</p>
-                                    <p><strong>TRN:</strong> 104718581200003</p>
-                                    <p><strong>Website:</strong> <a href="https://example.com" target="_blank">MDM.com</a>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="invoice-normal-print">
+                        @include('invoice.partials.print-footer')
                     </div>
 
                     <!-- Print Button -->
@@ -291,6 +312,11 @@
                             <a href="javascript:window.print()" class="btn btn-primary waves-effect waves-light">
                                 <i class="mdi mdi-printer me-1"></i> Print
                             </a>
+                            <button type="button" id="btn-print-3page"
+                                class="btn btn-outline-primary waves-effect waves-light ms-1"
+                                title="Page 1: 2 products · Page 2: 1 product · Page 3: last products (each page has its own total)">
+                                <i class="mdi mdi-printer-settings me-1"></i> Print (3-page layout)
+                            </button>
                         </div>
                     </div>
 
@@ -310,7 +336,22 @@
     </div> <!-- end row -->
 
     </div> <!-- container -->
-@endsection
 
-@section('scripts')
+    <script>
+        (function () {
+            var btn = document.getElementById('btn-print-3page');
+            if (!btn) return;
+
+            btn.addEventListener('click', function () {
+                document.body.classList.add('multi-page-print');
+                setTimeout(function () {
+                    window.print();
+                }, 150);
+            });
+
+            window.addEventListener('afterprint', function () {
+                document.body.classList.remove('multi-page-print');
+            });
+        })();
+    </script>
 @endsection

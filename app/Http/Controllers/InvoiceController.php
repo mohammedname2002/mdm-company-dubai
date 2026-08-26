@@ -32,11 +32,22 @@ class InvoiceController extends Controller
     {
         $paginate = request()->paginate ?? 10;
         $invoices = $this->invoiceService->index([], [], ['*'], $paginate);
-        $companies = $this->companyService->index([], [], ['*'], $paginate);
+        $companies = Company::orderBy('name')->get();
+
+        $years = Invoice::query()
+            ->selectRaw('YEAR(`from`) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year');
+
+        if ($years->isEmpty()) {
+            $years = collect([(int) date('Y')]);
+        }
+
         return view('invoice.index', [
             'invoices' => $invoices,
             'companies' => $companies,
-
+            'years' => $years,
         ]);
     }
 
@@ -124,24 +135,41 @@ class InvoiceController extends Controller
         });
 
 
-        $totalTotal = $products->sum(function ($product )use($invoiceName) {
+        $totalTotal = $products->sum(function ($product) use ($invoiceName) {
+            $companyDisc = (float) ($invoiceName->company->discount ?? 0);
+            $productPriceWithDiscont = $product->linePriceAfterDiscount($companyDisc);
 
-            $productPriceWithDiscont = $product->price * $product->quantity - ($product->price * $product->quantity * ($invoiceName->company->discount / 100)) ;
-            $productPriceWithDiscontAndVat = $productPriceWithDiscont + ($productPriceWithDiscont * $product->vat / 100) ;
-
-return $productPriceWithDiscontAndVat ;
-});
+            return $productPriceWithDiscont + ($productPriceWithDiscont * $product->vat / 100);
+        });
 
 return  view('invoice.show', [
             'products'=>$products
           , 'invoiceName'=>$invoiceName
          ,'totalWithVat'=>$totalWithVat
             ,'totalWithVatAndDiscount'=>$totalWithVatAndDiscount
-            ,'totalTotal'=>$totalTotal    ,
-
+            ,'totalTotal'=>$totalTotal
+            ,'multiPagePrint' => request()->boolean('multi_print'),
       ]);
     }
 
+
+    public function printByCompany(Request $request, $companyId)
+    {
+        $month = $request->filled('month') ? (int) $request->month : null;
+        $year = $request->filled('year') ? (int) $request->year : null;
+
+        $companyIdInt = ($companyId === 'all') ? null : (int) $companyId;
+
+        $data = $this->invoiceService->getCompanyInvoicesPrintData($companyIdInt, $month, $year);
+
+        if (empty($data['invoices'])) {
+            return redirect()
+                ->route('invoice.index')
+                ->with('error', 'No invoices found for the selected filters.');
+        }
+
+        return view('invoice.print-by-company', $data);
+    }
 
     public function downloadInvoice($id)
     {

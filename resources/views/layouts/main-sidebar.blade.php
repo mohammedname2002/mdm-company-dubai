@@ -116,6 +116,24 @@
                     </div>
                 </li>
 
+                <li>
+                    <a href="#sidebarCreditNotes" data-bs-toggle="collapse">
+                        <i class="mdi mdi-file-document-outline"></i>
+                        <span> Credit Notes </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="sidebarCreditNotes">
+                        <ul class="nav-second-level">
+                            <li>
+                                <a href="{{ route('credit-note.create') }}">Add Credit Note</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('credit-note.index') }}">Credit Notes List</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
 
 
             </ul>

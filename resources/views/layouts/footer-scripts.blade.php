@@ -29,6 +29,7 @@
 <!-- App js-->
 <script src="{{asset('assets/js/app.min.js')}}"></script>
 
+@yield('scripts')
 @yield('sripts')
 <script>
 document.querySelector('.sidebar-toggle').addEventListener('click', function() {
@@ -80,6 +81,22 @@ document.querySelector('.sidebar-toggle').addEventListener('click', function() {
                 if (willDelete) {
                     // Submit the form if confirmed
                     document.getElementById('deleteform' + companyId).submit();
+                }
+            });
+        }
+
+        function JSconfirmCreditNote(event, id) {
+            event.preventDefault();
+
+            swal({
+                title: "Are you sure?",
+                text: "Once deleted, you will not be able to recover this credit note!",
+                icon: "warning",
+                buttons: ["Cancel", "Yes, delete it!"],
+                dangerMode: true,
+            }).then((willDelete) => {
+                if (willDelete) {
+                    document.getElementById('deletecreditnote' + id).submit();
                 }
             });
         }

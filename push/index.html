@@ -1,0 +1,1952 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مسابقة الكلمات التركية - العربية</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            direction: rtl;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #2563eb;
+        }
+
+        .header h1 {
+            font-size: 26px;
+            color: #60a5fa;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            padding: 16px 20px 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            background: #1e293b;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            border-bottom: none;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: #1e40af;
+            color: #fff;
+            border-color: #2563eb;
+        }
+
+        .tab:hover:not(.active) {
+            background: #273549;
+            color: #cbd5e1;
+        }
+
+        .content {
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        /* CARDS MODE */
+        .flashcard-container {
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            width: 100%;
+            min-height: 220px;
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease;
+            border-radius: 16px;
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            min-height: 220px;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #1e3a5f, #152e4d);
+            border: 2px solid #2563eb;
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #1a3a2a, #122a1e);
+            border: 2px solid #16a34a;
+            transform: rotateY(180deg);
+        }
+
+        .card-face .lang-label {
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            opacity: 0.6;
+        }
+
+        .card-face .main-word {
+            font-size: 38px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .card-face .meanings {
+            font-size: 15px;
+            color: #94a3b8;
+            text-align: center;
+            line-height: 1.8;
+        }
+
+        .card-face .tap-hint {
+            font-size: 12px;
+            opacity: 0.5;
+            margin-top: 16px;
+        }
+
+        .card-front .main-word {
+            color: #93c5fd;
+        }
+
+        .card-back .main-word {
+            color: #86efac;
+        }
+
+        .card-back .meanings {
+            color: #a7f3d0;
+        }
+
+        .fc-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #15803d;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn-secondary {
+            background: #334155;
+            color: #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .btn-warning {
+            background: #d97706;
+            color: #fff;
+        }
+
+        .btn-warning:hover {
+            background: #b45309;
+        }
+
+        .progress-bar {
+            background: #1e293b;
+            border-radius: 20px;
+            height: 10px;
+            margin: 16px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
+            border-radius: 20px;
+            transition: width 0.4s ease;
+        }
+
+        .fc-counter {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .fc-stats {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 14px;
+        }
+
+        .stat-badge {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .stat-know {
+            background: #14532d;
+            color: #86efac;
+        }
+
+        .stat-learn {
+            background: #7f1d1d;
+            color: #fca5a5;
+        }
+
+        /* QUIZ MODE */
+        .quiz-question {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 1px solid #334155;
+            text-align: center;
+        }
+
+        .quiz-word {
+            font-size: 42px;
+            font-weight: 700;
+            color: #60a5fa;
+            margin-bottom: 10px;
+        }
+
+        .quiz-dir {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .quiz-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .quiz-opt {
+            padding: 14px 18px;
+            border-radius: 10px;
+            background: #1e293b;
+            border: 1.5px solid #334155;
+            cursor: pointer;
+            font-size: 15px;
+            color: #e2e8f0;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .quiz-opt:hover:not(.answered) {
+            background: #2d3f55;
+            border-color: #2563eb;
+        }
+
+        .quiz-opt.correct {
+            background: #14532d;
+            border-color: #16a34a;
+            color: #86efac;
+        }
+
+        .quiz-opt.wrong {
+            background: #7f1d1d;
+            border-color: #dc2626;
+            color: #fca5a5;
+        }
+
+        .quiz-opt.show-correct {
+            background: #14532d;
+            border-color: #16a34a;
+            color: #86efac;
+        }
+
+        .score-display {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .score-card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 14px 24px;
+            text-align: center;
+            border: 1px solid #334155;
+        }
+
+        .score-card .num {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .score-card .lbl {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .correct-num {
+            color: #4ade80;
+        }
+
+        .wrong-num {
+            color: #f87171;
+        }
+
+        .total-num {
+            color: #60a5fa;
+        }
+
+        /* WRITE MODE */
+        .write-card {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid #334155;
+            text-align: center;
+        }
+
+        .write-prompt {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+
+        .write-word {
+            font-size: 36px;
+            font-weight: 700;
+            color: #a78bfa;
+            margin-bottom: 8px;
+        }
+
+        .write-meanings-hint {
+            font-size: 13px;
+            color: #475569;
+            margin-bottom: 20px;
+        }
+
+        .write-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 14px 18px;
+            border-radius: 10px;
+            background: #0f172a;
+            border: 2px solid #334155;
+            color: #e2e8f0;
+            font-size: 20px;
+            text-align: center;
+            outline: none;
+            transition: border 0.2s;
+            direction: ltr;
+        }
+
+        .write-input:focus {
+            border-color: #7c3aed;
+        }
+
+        .write-input.correct {
+            border-color: #16a34a;
+            background: #052e16;
+        }
+
+        .write-input.wrong {
+            border-color: #dc2626;
+            background: #2d0a0a;
+        }
+
+        .write-feedback {
+            margin-top: 14px;
+            font-size: 16px;
+            min-height: 28px;
+            font-weight: 600;
+        }
+
+        .write-feedback.ok {
+            color: #4ade80;
+        }
+
+        .write-feedback.err {
+            color: #f87171;
+        }
+
+        .write-hint {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        /* BROWSE MODE */
+        .search-box {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: #1e293b;
+            border: 1.5px solid #334155;
+            color: #e2e8f0;
+            font-size: 15px;
+            margin-bottom: 16px;
+            outline: none;
+        }
+
+        .search-box:focus {
+            border-color: #2563eb;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 7px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            border: 1px solid #334155;
+            background: #1e293b;
+            color: #94a3b8;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active {
+            background: #1e40af;
+            color: #fff;
+            border-color: #2563eb;
+        }
+
+        .word-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .word-table th {
+            background: #1e3a5f;
+            padding: 12px;
+            font-size: 13px;
+            color: #93c5fd;
+            font-weight: 600;
+        }
+
+        .word-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #1e293b;
+            font-size: 14px;
+        }
+
+        .word-table tr:hover td {
+            background: #1e293b;
+        }
+
+        .tr-cell {
+            color: #93c5fd;
+            font-weight: 600;
+            direction: ltr;
+        }
+
+        .ar-cell {
+            color: #86efac;
+        }
+
+        .cat-badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .cat-noun {
+            background: #1e3a5f;
+            color: #93c5fd;
+        }
+
+        .cat-verb {
+            background: #1a3a2a;
+            color: #86efac;
+        }
+
+        .cat-adj {
+            background: #3b1f5e;
+            color: #c4b5fd;
+        }
+
+        .cat-other {
+            background: #3b2a0a;
+            color: #fcd34d;
+        }
+
+        .result-count {
+            color: #64748b;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        /* RESULTS */
+        .result-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .result-score {
+            font-size: 64px;
+            font-weight: 700;
+            margin: 20px 0;
+        }
+
+        .result-msg {
+            font-size: 18px;
+            color: #94a3b8;
+            margin-bottom: 30px;
+        }
+
+        .settings-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .settings-row label {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #e2e8f0;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #475569;
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .word-with-audio {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .pronounce-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45);
+            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .pronounce-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.55);
+        }
+
+        .pronounce-btn:active {
+            transform: scale(0.96);
+        }
+
+        .pronounce-btn.playing {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
+            animation: pronounce-pulse 1.2s ease-out infinite;
+        }
+
+        .pronounce-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .pronounce-btn-sm {
+            width: 34px;
+            height: 34px;
+        }
+
+        .pronounce-btn-sm svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .pronounce-label {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        @keyframes pronounce-pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55);
+            }
+
+            70% {
+                box-shadow: 0 0 0 12px rgba(34, 197, 94, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
+        }
+
+        .tr-cell-inner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            direction: ltr;
+            justify-content: flex-start;
+        }
+
+        .quiz-word-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .write-word-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* EXAM */
+        .exam-step-card {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid #334155;
+            border-radius: 20px;
+            padding: 32px 28px;
+            max-width: 520px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .exam-step-card h2 {
+            color: #60a5fa;
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .exam-step-card .sub {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 22px;
+            line-height: 1.6;
+        }
+
+        .exam-name-input {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 12px;
+            background: #0f172a;
+            border: 2px solid #334155;
+            color: #e2e8f0;
+            font-size: 18px;
+            text-align: center;
+            outline: none;
+            margin-bottom: 16px;
+        }
+
+        .exam-name-input:focus {
+            border-color: #2563eb;
+        }
+
+        .exam-player-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: #1e3a5f;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            border: 1px solid #2563eb;
+        }
+
+        .exam-player-name {
+            font-weight: 700;
+            color: #93c5fd;
+            font-size: 15px;
+        }
+
+        .exam-meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .exam-type-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .badge-mcq {
+            background: #1e3a5f;
+            color: #93c5fd;
+        }
+
+        .badge-write {
+            background: #3b1f5e;
+            color: #c4b5fd;
+        }
+
+        .exam-cert {
+            background: linear-gradient(160deg, #1e3a5f 0%, #0f2744 50%, #1a3a2a 100%);
+            border: 2px solid #2563eb;
+            border-radius: 20px;
+            padding: 36px 28px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .exam-cert::before {
+            content: '';
+            position: absolute;
+            top: -40%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.2), transparent);
+        }
+
+        .cert-label {
+            font-size: 12px;
+            letter-spacing: 3px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .cert-name {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fbbf24;
+            margin-bottom: 16px;
+        }
+
+        .cert-score-ring {
+            font-size: 56px;
+            font-weight: 800;
+            color: #4ade80;
+            line-height: 1;
+            margin: 12px 0;
+        }
+
+        .cert-grade {
+            font-size: 20px;
+            color: #86efac;
+            margin-bottom: 20px;
+        }
+
+        .cert-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            text-align: center;
+        }
+
+        .cert-stat-box {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 12px;
+            padding: 14px;
+            border: 1px solid #334155;
+        }
+
+        .cert-stat-box .n {
+            font-size: 22px;
+            font-weight: 700;
+            color: #e2e8f0;
+        }
+
+        .cert-stat-box .l {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .leaderboard {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 13px;
+        }
+
+        .leaderboard th {
+            background: #1e3a5f;
+            color: #93c5fd;
+            padding: 10px;
+            font-weight: 600;
+        }
+
+        .leaderboard td {
+            padding: 9px 10px;
+            border-bottom: 1px solid #1e293b;
+            text-align: center;
+        }
+
+        .leaderboard tr:nth-child(1) td {
+            color: #fbbf24;
+            font-weight: 600;
+        }
+
+        .leaderboard-wrap {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid #334155;
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .leaderboard-wrap h3 {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .pct-high {
+            color: #4ade80;
+        }
+
+        .pct-mid {
+            color: #fbbf24;
+        }
+
+        .pct-low {
+            color: #f87171;
+        }
+
+        .storage-hint {
+            font-size: 12px;
+            color: #64748b;
+            margin: 12px 0;
+            padding: 10px 12px;
+            background: #0f172a;
+            border-radius: 10px;
+            border: 1px solid #334155;
+            line-height: 1.6;
+            text-align: right;
+        }
+
+        .storage-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-right: 6px;
+        }
+
+        .storage-badge.server {
+            background: #14532d;
+            color: #86efac;
+        }
+
+        .storage-badge.local {
+            background: #422006;
+            color: #fcd34d;
+        }
+
+        .exam-tools {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 12px;
+        }
+
+        @media(max-width:600px) {
+            .quiz-options,
+            .exam-mcq-options {
+                grid-template-columns: 1fr;
+            }
+
+            .cert-stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card-face .main-word {
+                font-size: 28px;
+            }
+
+            .write-word {
+                font-size: 26px;
+            }
+
+            .quiz-word {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>📚 مسابقة الكلمات التركية - العربية</h1>
+        <p>تعلم وراجع المفردات التركية مع معانيها العربية الكاملة</p>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('cards')">🃏 بطاقات</div>
+        <div class="tab" onclick="switchTab('exam')">📝 امتحان</div>
+        <div class="tab" onclick="switchTab('write')">✏️ كتابة</div>
+        <div class="tab" onclick="switchTab('browse')">🔍 تصفح</div>
+    </div>
+
+    <div class="content">
+        <!-- CARDS PANEL -->
+        <div id="panel-cards" class="panel active">
+            <div class="settings-row">
+                <label>الاتجاه:</label>
+                <select id="card-dir" onchange="initCards()">
+                    <option value="tr-ar">تركي ← عربي</option>
+                    <option value="ar-tr">عربي ← تركي</option>
+                    <option value="random">عشوائي</option>
+                </select>
+                <label>الفئة:</label>
+                <select id="card-cat" onchange="initCards()">
+                    <option value="all">الكل</option>
+                    <option value="noun">أسماء</option>
+                    <option value="verb">أفعال</option>
+                    <option value="adj">صفات</option>
+                    <option value="other">أخرى</option>
+                </select>
+                <button class="btn btn-secondary" onclick="initCards()">🔀 خلط</button>
+            </div>
+            <div class="fc-counter" id="fc-counter"></div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="fc-progress"></div>
+            </div>
+            <div class="flashcard-container">
+                <div class="flashcard" id="flashcard" onclick="flipCard()">
+                    <div class="card-face card-front">
+                        <div class="lang-label" id="fc-front-lang">تركي</div>
+                        <div class="word-with-audio">
+                            <div class="main-word" id="fc-front-word">—</div>
+                            <button type="button" class="pronounce-btn" id="fc-front-pron" style="display:none"
+                                aria-label="استمع للنطق الصحيح"></button>
+                        </div>
+                        <div class="tap-hint">انقر للترجمة</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <div class="lang-label" id="fc-back-lang">عربي</div>
+                        <div class="word-with-audio">
+                            <div class="main-word" id="fc-back-word">—</div>
+                            <button type="button" class="pronounce-btn" id="fc-back-pron" style="display:none"
+                                aria-label="استمع للنطق الصحيح"></button>
+                        </div>
+                        <div class="meanings" id="fc-back-meanings"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="fc-controls">
+                <button class="btn btn-danger" onclick="markCard(false)">❌ لا أعرفها</button>
+                <button class="btn btn-secondary" onclick="nextCard()">⏭ التالي</button>
+                <button class="btn btn-success" onclick="markCard(true)">✅ أعرفها</button>
+            </div>
+            <div class="fc-stats">
+                <div class="stat-badge stat-know">أعرف: <span id="stat-know">0</span></div>
+                <div class="stat-badge stat-learn">أتعلم: <span id="stat-learn">0</span></div>
+            </div>
+        </div>
+
+        <!-- EXAM PANEL -->
+        <div id="panel-exam" class="panel">
+            <div id="exam-setup">
+                <h2 style="color:#60a5fa;font-size:22px;text-align:center;margin-bottom:16px;">🎓 الامتحان</h2>
+                <div class="settings-row">
+                    <label>عدد الأسئلة:</label>
+                    <select id="exam-count">
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <option value="20" selected>20</option>
+                        <option value="30">30</option>
+                        <option value="50">50</option>
+                    </select>
+                    <label>اختيار من متعدد:</label>
+                    <select id="exam-mcq-pct">
+                        <option value="0.5" selected>50%</option>
+                        <option value="0.6">60%</option>
+                        <option value="0.7">70%</option>
+                        <option value="0.4">40%</option>
+                    </select>
+                    <label>الفئة:</label>
+                    <select id="exam-cat">
+                        <option value="all">الكل</option>
+                        <option value="noun">أسماء</option>
+                        <option value="verb">أفعال</option>
+                        <option value="adj">صفات</option>
+                    </select>
+                </div>
+                <p style="color:#64748b;font-size:13px;margin:12px 0;line-height:1.7;">
+                    الامتحان يجمع <strong style="color:#93c5fd">اختياراً من متعدد</strong> و<strong
+                        style="color:#c4b5fd">كتابة</strong> (تركي من العربية).
+                </p>
+                <button class="btn btn-primary" onclick="startExam()"
+                    style="width:100%;padding:14px;font-size:16px;border-radius:12px;">🚀 بدء الامتحان الآن</button>
+            </div>
+
+            <div id="exam-game" style="display:none;">
+                <div class="exam-player-bar">
+                    <span class="exam-player-name">📝 الامتحان جارٍ</span>
+                    <div class="exam-meta">
+                        <span class="exam-type-badge" id="exam-type-badge">—</span>
+                        <span id="exam-q-counter">1 / 20</span>
+                        <span id="exam-timer">⏱ 00:00</span>
+                    </div>
+                </div>
+                <div class="score-display">
+                    <div class="score-card">
+                        <div class="num correct-num" id="exam-correct-n">0</div>
+                        <div class="lbl">صحيح</div>
+                    </div>
+                    <div class="score-card">
+                        <div class="num wrong-num" id="exam-wrong-n">0</div>
+                        <div class="lbl">خطأ</div>
+                    </div>
+                    <div class="score-card">
+                        <div class="num total-num" id="exam-left-n">0</div>
+                        <div class="lbl">المتبقي</div>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="exam-progress"></div>
+                </div>
+
+                <div id="exam-mcq-block">
+                    <div class="quiz-question">
+                        <div class="quiz-dir" id="exam-mcq-label"></div>
+                        <div class="quiz-word-row">
+                            <div class="quiz-word" id="exam-mcq-word"></div>
+                            <button type="button" class="pronounce-btn" id="exam-mcq-pron" style="display:none"
+                                aria-label="استمع للنطق الصحيح"></button>
+                        </div>
+                    </div>
+                    <div class="quiz-options exam-mcq-options" id="exam-mcq-options"></div>
+                    <div style="text-align:center;margin-top:16px;">
+                        <button class="btn btn-secondary" id="exam-mcq-next" onclick="examMcqNext()"
+                            style="display:none;">التالي ▶</button>
+                    </div>
+                </div>
+
+                <div id="exam-write-block" style="display:none;">
+                    <div class="write-card">
+                        <div class="write-prompt" id="exam-write-prompt"></div>
+                        <div class="write-word-row">
+                            <div class="write-word" id="exam-write-word"></div>
+                            <button type="button" class="pronounce-btn" id="exam-write-pron" style="display:none"
+                                aria-label="استمع للنطق الصحيح"></button>
+                        </div>
+                        <div class="write-meanings-hint" id="exam-write-hint"></div>
+                        <input class="write-input" id="exam-write-input" type="text" placeholder="اكتب الإجابة هنا..."
+                            autocomplete="off" autocorrect="off" spellcheck="false"
+                            onkeydown="if(event.key==='Enter')checkExamWrite()">
+                        <div class="write-feedback" id="exam-write-feedback"></div>
+                        <div class="write-hint" id="exam-write-answer"></div>
+                    </div>
+                    <div class="fc-controls" style="margin-top:14px;">
+                        <button class="btn btn-primary" onclick="checkExamWrite()">✔ تحقق</button>
+                        <button class="btn btn-secondary" id="exam-write-next" onclick="examWriteNext()"
+                            style="display:none;">التالي ▶</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="exam-result" style="display:none;" class="result-screen">
+                <div class="exam-cert">
+                    <div class="cert-label">نتيجة الامتحان</div>
+                    <div class="cert-score-ring" id="cert-pct">0%</div>
+                    <div class="cert-grade" id="cert-grade">—</div>
+                    <div class="cert-stats-grid">
+                        <div class="cert-stat-box">
+                            <div class="n" id="cert-mcq">0/0</div>
+                            <div class="l">اختيار من متعدد</div>
+                        </div>
+                        <div class="cert-stat-box">
+                            <div class="n" id="cert-write">0/0</div>
+                            <div class="l">كتابة</div>
+                        </div>
+                        <div class="cert-stat-box">
+                            <div class="n" id="cert-total">0/0</div>
+                            <div class="l">المجموع</div>
+                        </div>
+                        <div class="cert-stat-box">
+                            <div class="n" id="cert-time">—</div>
+                            <div class="l">المدة</div>
+                        </div>
+                    </div>
+                </div>
+                <p class="result-msg" id="cert-msg">أحسنت! يمكنك إعادة الامتحان للتدريب.</p>
+                <button class="btn btn-primary" onclick="showExamSetup()" style="margin:6px;">🔄 امتحان جديد</button>
+            </div>
+        </div>
+
+        <!-- WRITE PANEL -->
+        <div id="panel-write" class="panel">
+            <div class="settings-row">
+                <label>الاتجاه:</label>
+                <select id="write-dir" onchange="initWrite()">
+                    <option value="ar-tr">اكتب التركية من العربية</option>
+                    <option value="tr-ar">اكتب العربية من التركية</option>
+                </select>
+                <label>الفئة:</label>
+                <select id="write-cat" onchange="initWrite()">
+                    <option value="all">الكل</option>
+                    <option value="noun">أسماء</option>
+                    <option value="verb">أفعال</option>
+                    <option value="adj">صفات</option>
+                </select>
+                <button class="btn btn-secondary" onclick="initWrite()">🔀 خلط</button>
+            </div>
+            <div class="fc-counter" id="write-counter"></div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="write-progress"></div>
+            </div>
+            <div class="write-card">
+                <div class="write-prompt" id="write-prompt"></div>
+                <div class="write-word-row">
+                    <div class="write-word" id="write-word"></div>
+                    <button type="button" class="pronounce-btn" id="write-pron" style="display:none"
+                        aria-label="استمع للنطق الصحيح"></button>
+                </div>
+                <div class="write-meanings-hint" id="write-hint-meanings"></div>
+                <input class="write-input" id="write-input" type="text" placeholder="اكتب الإجابة هنا..."
+                    autocomplete="off" autocorrect="off" spellcheck="false"
+                    onkeydown="if(event.key==='Enter')checkWrite()">
+                <div class="write-feedback" id="write-feedback"></div>
+                <div class="write-hint" id="write-answer-hint"></div>
+            </div>
+            <div class="fc-controls" style="margin-top:16px;">
+                <button class="btn btn-primary" onclick="checkWrite()">✔ تحقق</button>
+                <button class="btn btn-warning" onclick="showWriteHint()">💡 تلميح</button>
+                <button class="btn btn-secondary" onclick="skipWrite()">⏭ تخطي</button>
+            </div>
+            <div class="fc-stats">
+                <div class="stat-badge stat-know">صحيح: <span id="write-correct">0</span></div>
+                <div class="stat-badge stat-learn">خطأ: <span id="write-wrong">0</span></div>
+            </div>
+        </div>
+
+        <!-- BROWSE PANEL -->
+        <div id="panel-browse" class="panel">
+            <input class="search-box" id="search-input" placeholder="🔍 ابحث بالتركية أو العربية..."
+                oninput="renderTable()">
+            <div class="filter-row">
+                <div class="filter-btn active" onclick="setFilter('all',this)">الكل</div>
+                <div class="filter-btn" onclick="setFilter('noun',this)">📦 أسماء</div>
+                <div class="filter-btn" onclick="setFilter('verb',this)">⚡ أفعال</div>
+                <div class="filter-btn" onclick="setFilter('adj',this)">🎨 صفات</div>
+                <div class="filter-btn" onclick="setFilter('other',this)">🔤 أخرى</div>
+            </div>
+            <div class="result-count" id="result-count"></div>
+            <table class="word-table">
+                <thead>
+                    <tr>
+                        <th>التركية</th>
+                        <th style="width:52px">نطق</th>
+                        <th>العربية (كل المعاني)</th>
+                        <th>الفئة</th>
+                    </tr>
+                </thead>
+                <tbody id="word-tbody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const WORDS = [
+            { tr: "aç", ar: ["جائع", "فارغ", "مفتوح"], cat: "adj" },
+            { tr: "açık", ar: ["مفتوح", "واضح", "صريح", "مضيء"], cat: "adj" },
+            { tr: "adres", ar: ["عنوان", "العنوان البريدي"], cat: "noun" },
+            { tr: "akşam", ar: ["مساء", "أمسية"], cat: "noun" },
+            { tr: "alışveriş", ar: ["تسوق", "شراء"], cat: "noun" },
+            { tr: "alışveriş merkezi", ar: ["مركز تجاري", "مول"], cat: "noun" },
+            { tr: "alt", ar: ["تحت", "أسفل", "السفلي"], cat: "other" },
+            { tr: "anahtar", ar: ["مفتاح", "مفتاح الباب"], cat: "noun" },
+            { tr: "artı", ar: ["بالإضافة إلى", "زائد", "إيجابي"], cat: "other" },
+            { tr: "ay", ar: ["شهر", "قمر"], cat: "noun" },
+            { tr: "banka", ar: ["بنك", "مصرف"], cat: "noun" },
+            { tr: "bekâr", ar: ["أعزب", "غير متزوج"], cat: "adj" },
+            { tr: "bina", ar: ["بناء", "مبنى", "عمارة"], cat: "noun" },
+            { tr: "birçok", ar: ["كثير", "عديد", "متعدد"], cat: "adj" },
+            { tr: "boş", ar: ["فارغ", "خالٍ", "حر"], cat: "adj" },
+            { tr: "bölü", ar: ["قسمة", "مقسوم على"], cat: "other" },
+            { tr: "bugün", ar: ["اليوم", "هذا اليوم"], cat: "other" },
+            { tr: "burada", ar: ["هنا", "في هذا المكان"], cat: "other" },
+            { tr: "bütün", ar: ["كل", "جميع", "كامل"], cat: "adj" },
+            { tr: "cesur", ar: ["شجاع", "جريء", "مقدام"], cat: "adj" },
+            { tr: "ciddi", ar: ["جاد", "صارم", "خطير"], cat: "adj" },
+            { tr: "çalışkan", ar: ["مجتهد", "عامل", "مجد"], cat: "adj" },
+            { tr: "çarşı", ar: ["سوق", "بازار"], cat: "noun" },
+            { tr: "çirkin", ar: ["قبيح", "دميم", "بشع"], cat: "adj" },
+            { tr: "çöp kutusu", ar: ["سلة القمامة", "صندوق المهملات"], cat: "noun" },
+            { tr: "çünkü", ar: ["لأن", "بسبب", "إذ"], cat: "other" },
+            { tr: "dağınık", ar: ["مبعثر", "فوضوي"], cat: "adj" },
+            { tr: "dar", ar: ["ضيق", "محدود"], cat: "adj" },
+            { tr: "dergi", ar: ["مجلة", "دورية"], cat: "noun" },
+            { tr: "dikkatli", ar: ["حذر", "منتبه", "دقيق"], cat: "adj" },
+            { tr: "doğum tarihi", ar: ["تاريخ الميلاد", "تاريخ الولادة"], cat: "noun" },
+            { tr: "dolu", ar: ["ممتلئ", "مليء", "كامل"], cat: "adj" },
+            { tr: "domates", ar: ["طماطم", "بندورة"], cat: "noun" },
+            { tr: "dosya", ar: ["ملف", "مجلد"], cat: "noun" },
+            { tr: "durak", ar: ["محطة", "موقف", "توقف"], cat: "noun" },
+            { tr: "duvar", ar: ["حائط", "جدار"], cat: "noun" },
+            { tr: "düzenli", ar: ["منظم", "ترتيبي", "منتظم"], cat: "adj" },
+            { tr: "eczacı", ar: ["صيدلاني", "كيميائي"], cat: "noun" },
+            { tr: "eğlenceli", ar: ["ممتع", "مسلٍ", "مرح"], cat: "adj" },
+            { tr: "eksi", ar: ["ناقص", "سلبي"], cat: "other" },
+            { tr: "evli", ar: ["متزوج", "زوج"], cat: "adj" },
+            { tr: "fakir", ar: ["فقير", "معدم"], cat: "adj" },
+            { tr: "fark", ar: ["فرق", "اختلاف", "تمييز"], cat: "noun" },
+            { tr: "fırın", ar: ["فرن", "مخبز", "مطبخ"], cat: "noun" },
+            { tr: "gazete", ar: ["صحيفة", "جريدة"], cat: "noun" },
+            { tr: "gece", ar: ["ليل", "ليلة"], cat: "noun" },
+            { tr: "genellikle", ar: ["عادةً", "في الغالب", "غالباً"], cat: "other" },
+            { tr: "geniş", ar: ["واسع", "فسيح", "رحب"], cat: "adj" },
+            { tr: "güçlü", ar: ["قوي", "شديد"], cat: "adj" },
+            { tr: "güçsüz", ar: ["ضعيف", "واهن"], cat: "adj" },
+            { tr: "gündüz", ar: ["نهار", "نهاراً"], cat: "noun" },
+            { tr: "hafta sonu", ar: ["عطلة الأسبوع", "نهاية الأسبوع"], cat: "noun" },
+            { tr: "hasta", ar: ["مريض", "عليل"], cat: "adj" },
+            { tr: "hastane", ar: ["مستشفى", "عيادة"], cat: "noun" },
+            { tr: "her", ar: ["كل", "كل واحد", "جميع"], cat: "other" },
+            { tr: "her zaman", ar: ["دائماً", "في كل وقت", "أبداً"], cat: "other" },
+            { tr: "hızlı", ar: ["سريع", "عجول", "خفيف"], cat: "adj" },
+            { tr: "içecek", ar: ["مشروب", "شراب"], cat: "noun" },
+            { tr: "istasyon", ar: ["محطة", "موقف"], cat: "noun" },
+            { tr: "kaç", ar: ["كم", "كيف", "كمية"], cat: "other" },
+            { tr: "kantin", ar: ["كانتين", "مقصف"], cat: "noun" },
+            { tr: "kapalı", ar: ["مغلق", "مسقوف", "محجوب"], cat: "adj" },
+            { tr: "kasap", ar: ["جزار", "قصاب"], cat: "noun" },
+            { tr: "kasiyer", ar: ["أمين الصندوق", "كاشير"], cat: "noun" },
+            { tr: "kat", ar: ["طابق", "دور", "طوي"], cat: "noun" },
+            { tr: "kırmızı", ar: ["أحمر", "قرمزي"], cat: "adj" },
+            { tr: "kıskanç", ar: ["غيور", "حسود"], cat: "adj" },
+            { tr: "kibar", ar: ["مهذب", "لطيف", "كريم"], cat: "adj" },
+            { tr: "kilo", ar: ["كيلو", "كيلوجرام"], cat: "noun" },
+            { tr: "kitaplık", ar: ["مكتبة", "رف الكتب"], cat: "noun" },
+            { tr: "kolay", ar: ["سهل", "يسير", "بسيط"], cat: "adj" },
+            { tr: "komik", ar: ["مضحك", "فكاهي", "هزلي"], cat: "adj" },
+            { tr: "konuşkan", ar: ["ثرثار", "كثير الكلام"], cat: "adj" },
+            { tr: "koridor", ar: ["ممر", "رواق", "دهليز"], cat: "noun" },
+            { tr: "kötü", ar: ["سيء", "رديء", "بائس"], cat: "adj" },
+            { tr: "kuaför", ar: ["مصفف شعر", "حلاق"], cat: "noun" },
+            { tr: "kuyumcu", ar: ["صائغ", "جوهرجي"], cat: "noun" },
+            { tr: "lamba", ar: ["مصباح", "ضوء"], cat: "noun" },
+            { tr: "mahalle", ar: ["حي", "حارة"], cat: "noun" },
+            { tr: "manav", ar: ["بقال", "خضري"], cat: "noun" },
+            { tr: "market", ar: ["متجر", "سوق", "محل"], cat: "noun" },
+            { tr: "mutfak", ar: ["مطبخ", "طبخ"], cat: "noun" },
+            { tr: "mutlu", ar: ["سعيد", "مبتهج", "فرحان"], cat: "adj" },
+            { tr: "mutsuz", ar: ["حزين", "تعيس", "مكتئب"], cat: "adj" },
+            { tr: "nerede", ar: ["أين", "في أي مكان"], cat: "other" },
+            { tr: "nesne", ar: ["شيء", "كائن", "موضوع"], cat: "noun" },
+            { tr: "niçin", ar: ["لماذا", "بسبب ماذا"], cat: "other" },
+            { tr: "ocak", ar: ["شهر يناير", "موقد"], cat: "noun" },
+            { tr: "ofis", ar: ["مكتب", "مكان العمل"], cat: "noun" },
+            { tr: "orada", ar: ["هناك", "في ذلك المكان"], cat: "other" },
+            { tr: "öğleden sonra", ar: ["بعد الظهر", "فترة المساء"], cat: "noun" },
+            { tr: "önemli", ar: ["مهم", "ذو أهمية"], cat: "adj" },
+            { tr: "önemsiz", ar: ["غير مهم", "تافه", "بلا قيمة"], cat: "adj" },
+            { tr: "pahalı", ar: ["غالي", "مكلف", "باهظ"], cat: "adj" },
+            { tr: "pastane", ar: ["محل حلويات", "كافيه", "مخبز"], cat: "noun" },
+            { tr: "pembe", ar: ["وردي", "زهري"], cat: "adj" },
+            { tr: "postane", ar: ["مكتب بريد", "بريد"], cat: "noun" },
+            { tr: "projektör", ar: ["بروجكتور", "جهاز عرض"], cat: "noun" },
+            { tr: "psikolog", ar: ["علم النفس", "طبيب نفسي"], cat: "noun" },
+            { tr: "resepsiyonist", ar: ["موظف استقبال", "رسبشن"], cat: "noun" },
+            { tr: "sakin", ar: ["هادئ", "ساكن", "بارد الأعصاب"], cat: "adj" },
+            { tr: "sayı", ar: ["عدد", "رقم"], cat: "noun" },
+            { tr: "sehpa", ar: ["طاولة القهوة", "منضدة"], cat: "noun" },
+            { tr: "sekreter", ar: ["سكرتير", "كاتب"], cat: "noun" },
+            { tr: "semt", ar: ["حي", "منطقة", "ربع"], cat: "noun" },
+            { tr: "sessiz", ar: ["صامت", "هادئ", "بلا صوت"], cat: "adj" },
+            { tr: "sıcak", ar: ["ساخن", "دافئ", "حار"], cat: "adj" },
+            { tr: "sıfat", ar: ["صفة", "نعت", "لقب"], cat: "noun" },
+            { tr: "sinirli", ar: ["عصبي", "غاضب", "مثير للأعصاب"], cat: "adj" },
+            { tr: "sosyal", ar: ["اجتماعي", "منفتح"], cat: "adj" },
+            { tr: "şehir", ar: ["مدينة", "بلد"], cat: "noun" },
+            { tr: "şimdi", ar: ["الآن", "حالاً", "في هذه اللحظة"], cat: "other" },
+            { tr: "şişman", ar: ["بدين", "سمين", "ضخم"], cat: "adj" },
+            { tr: "tabak", ar: ["صحن", "طبق"], cat: "noun" },
+            { tr: "tarih", ar: ["تاريخ", "تاريخ الميلاد", "تاريخ وثيقة"], cat: "noun" },
+            { tr: "tatil", ar: ["إجازة", "عطلة", "أجازة"], cat: "noun" },
+            { tr: "tehlikeli", ar: ["خطير", "محفوف بالمخاطر"], cat: "adj" },
+            { tr: "tembel", ar: ["كسول", "خامل"], cat: "adj" },
+            { tr: "tezgâhtar", ar: ["كاتب المبيعات", "بائع"], cat: "noun" },
+            { tr: "tuzlu", ar: ["مالح", "سالت"], cat: "adj" },
+            { tr: "ucuz", ar: ["رخيص", "غير مكلف"], cat: "adj" },
+            { tr: "uzak", ar: ["بعيد", "نائي"], cat: "adj" },
+            { tr: "üst", ar: ["فوق", "أعلى", "السطح"], cat: "other" },
+            { tr: "var", ar: ["موجود", "يوجد", "هناك"], cat: "other" },
+            { tr: "yakın", ar: ["قريب", "مقرب", "وشيك"], cat: "adj" },
+            { tr: "yaşlı", ar: ["مسن", "كبير في السن"], cat: "adj" },
+            { tr: "yavaş", ar: ["بطيء", "ببطء"], cat: "adj" },
+            { tr: "yazı tahtası", ar: ["سبورة", "لوح كتابة"], cat: "noun" },
+            { tr: "yer", ar: ["مكان", "أرض", "موقع"], cat: "noun" },
+            { tr: "yıl", ar: ["سنة", "عام"], cat: "noun" },
+            { tr: "yiyecek", ar: ["طعام", "أكل", "مؤونة"], cat: "noun" },
+            { tr: "yoğun", ar: ["كثيف", "مكثف", "مزدحم"], cat: "adj" },
+            { tr: "yok", ar: ["لا يوجد", "غائب", "معدوم"], cat: "other" },
+            { tr: "yorgun", ar: ["متعب", "مرهق"], cat: "adj" },
+            { tr: "zamir", ar: ["ضمير", "بدل"], cat: "noun" },
+            { tr: "zayıf", ar: ["نحيف", "ضعيف", "هزيل"], cat: "adj" },
+            { tr: "zengin", ar: ["غني", "ثري", "ثروة"], cat: "adj" },
+            { tr: "aramak", ar: ["يبحث عن", "يتصل", "يتفحص"], cat: "verb" },
+        ];
+
+        let cardQueue = [], cardIndex = 0, cardKnow = 0, cardLearn = 0;
+        let examQuestions = [], examIndex = 0;
+        let examCorrect = 0, examWrong = 0;
+        let examMcqCorrect = 0, examMcqWrong = 0, examWriteCorrect = 0, examWriteWrong = 0;
+        let examMcqTotal = 0, examWriteTotal = 0;
+        let examStartTime = 0, examTimerId = null;
+        let examWriteLocked = false;
+        let writeQueue = [], writeIndex = 0, writeCorrectCount = 0, writeWrongCount = 0, writeRevealed = false;
+        let browseFilter = 'all';
+        let activePronounceBtn = null;
+        let pronounceAudio = null;
+
+        const PRONOUNCE_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
+
+        function isTurkishVoice(v) {
+            const lang = (v.lang || '').toLowerCase().replace(/_/g, '-');
+            const name = (v.name || '').toLowerCase();
+            return lang.startsWith('tr') || /turkish|türk|tuerk|yelda|zehra|ayşe|emel/i.test(name);
+        }
+
+        function getBestTurkishVoice() {
+            if (!('speechSynthesis' in window)) return null;
+            const voices = speechSynthesis.getVoices();
+            const tr = voices.filter(isTurkishVoice);
+            if (!tr.length) return null;
+            return tr.find(v => v.localService) || tr[0];
+        }
+
+        if ('speechSynthesis' in window) {
+            speechSynthesis.getVoices();
+            window.speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+        }
+
+        function clearPronounceBtn(btnEl) {
+            if (!btnEl) return;
+            btnEl.classList.remove('playing');
+            if (activePronounceBtn === btnEl) activePronounceBtn = null;
+        }
+
+        let pronounceBlobUrl = null;
+
+        function revokePronounceBlob() {
+            if (pronounceBlobUrl) {
+                URL.revokeObjectURL(pronounceBlobUrl);
+                pronounceBlobUrl = null;
+            }
+        }
+
+        function stopSpeech() {
+            revokePronounceBlob();
+            if (pronounceAudio) {
+                pronounceAudio.pause();
+                pronounceAudio.onended = null;
+                pronounceAudio.onerror = null;
+                pronounceAudio.src = '';
+                pronounceAudio = null;
+            }
+            if ('speechSynthesis' in window) speechSynthesis.cancel();
+            if (activePronounceBtn) {
+                activePronounceBtn.classList.remove('playing');
+                activePronounceBtn = null;
+            }
+        }
+
+        /* مصادر نطق تركي — HTML فقط (بدون PHP)، تعمل بعد الرفع على استضافة HTTPS */
+        function ttsApiUrls(text) {
+            const q = encodeURIComponent(text);
+            return [
+                `https://tts-api.netlify.app/?text=${q}&lang=tr-TR`,
+                `https://corsproxy.io/?${encodeURIComponent('https://translate.google.com/translate_tts?ie=UTF-8&client=gtx&tl=tr&q=' + q)}`
+            ];
+        }
+
+        function playAudioBlob(blob, btnEl) {
+            return new Promise((resolve, reject) => {
+                revokePronounceBlob();
+                pronounceBlobUrl = URL.createObjectURL(blob);
+                pronounceAudio = new Audio(pronounceBlobUrl);
+                pronounceAudio.setAttribute('playsinline', '');
+                pronounceAudio.onended = () => {
+                    pronounceAudio = null;
+                    revokePronounceBlob();
+                    clearPronounceBtn(btnEl);
+                    resolve();
+                };
+                pronounceAudio.onerror = () => {
+                    pronounceAudio = null;
+                    revokePronounceBlob();
+                    reject(new Error('play'));
+                };
+                pronounceAudio.play().catch(reject);
+            });
+        }
+
+        async function fetchTurkishAudio(url) {
+            const res = await fetch(url, { method: 'GET', mode: 'cors' });
+            if (!res.ok) throw new Error('http ' + res.status);
+            const blob = await res.blob();
+            if (blob.size < 200) throw new Error('empty');
+            return blob;
+        }
+
+        function speakTurkishNative(text, btnEl) {
+            const voice = getBestTurkishVoice();
+            if (!voice) return false;
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.voice = voice;
+            utter.lang = voice.lang || 'tr-TR';
+            utter.voiceURI = voice.voiceURI;
+            utter.rate = 0.9;
+            utter.pitch = 1;
+            utter.onend = () => clearPronounceBtn(btnEl);
+            utter.onerror = () => clearPronounceBtn(btnEl);
+            speechSynthesis.speak(utter);
+            return true;
+        }
+
+        async function speakTurkish(text, btnEl) {
+            if (!text) return;
+            if (location.protocol === 'file:') {
+                alert('للنطق التركي: ارفع الملف على موقع (GitHub Pages، Netlify…) وافتحه برابط https://\n\nفتح الملف مباشرة من الجهاز (file://) لا يعمل في Chrome و Safari.');
+                return;
+            }
+            stopSpeech();
+            if (btnEl) {
+                btnEl.classList.add('playing');
+                activePronounceBtn = btnEl;
+            }
+            for (const url of ttsApiUrls(text)) {
+                try {
+                    const blob = await fetchTurkishAudio(url);
+                    await playAudioBlob(blob, btnEl);
+                    return;
+                } catch (e) { /* جرّب المصدر التالي */ }
+            }
+            if (speakTurkishNative(text, btnEl)) return;
+            clearPronounceBtn(btnEl);
+            alert('تعذّر النطق التركي.\n• تحقق من الإنترنت\n• افتح الصفحة عبر https:// وليس file://\n• جرّب Chrome أو Safari بعد الرفع على استضافة');
+        }
+
+        function setupPronounceBtn(btnId, turkishText) {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            if (!turkishText) {
+                btn.style.display = 'none';
+                return;
+            }
+            btn.style.display = 'inline-flex';
+            btn.innerHTML = PRONOUNCE_ICON;
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                speakTurkish(turkishText, btn);
+            };
+        }
+
+        function switchTab(t) {
+            stopSpeech();
+            document.querySelectorAll('.tab').forEach((el, i) => el.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(el => el.classList.remove('active'));
+            const tabs = ['cards', 'exam', 'write', 'browse'];
+            document.querySelectorAll('.tab')[tabs.indexOf(t)].classList.add('active');
+            document.getElementById('panel-' + t).classList.add('active');
+            if (t === 'cards') initCards();
+            if (t === 'exam') showExamSetup();
+            if (t === 'write') initWrite();
+            if (t === 'browse') renderTable();
+        }
+
+        function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+        function getFiltered(cat) { return cat === 'all' ? [...WORDS] : WORDS.filter(w => w.cat === cat); }
+
+        // ---- CARDS ----
+        function initCards() {
+            const cat = document.getElementById('card-cat').value;
+            cardQueue = shuffle(getFiltered(cat));
+            cardIndex = 0; cardKnow = 0; cardLearn = 0;
+            document.getElementById('stat-know').textContent = 0;
+            document.getElementById('stat-learn').textContent = 0;
+            document.getElementById('flashcard').classList.remove('flipped');
+            showCard();
+        }
+        function showCard() {
+            if (cardIndex >= cardQueue.length) {
+                document.getElementById('fc-front-word').textContent = '🎉';
+                document.getElementById('fc-back-word').textContent = 'انتهيت!';
+                document.getElementById('fc-back-meanings').textContent = `أعرف: ${cardKnow} | أتعلم: ${cardLearn}`;
+                document.getElementById('fc-counter').textContent = 'انتهت البطاقات!';
+                document.getElementById('fc-progress').style.width = '100%';
+                setupPronounceBtn('fc-front-pron', null);
+                setupPronounceBtn('fc-back-pron', null);
+                return;
+            }
+            const w = cardQueue[cardIndex];
+            const dir = document.getElementById('card-dir').value;
+            const isAR = dir === 'ar-tr' || (dir === 'random' && Math.random() > 0.5);
+            document.getElementById('fc-front-lang').textContent = isAR ? 'عربي' : 'تركي';
+            document.getElementById('fc-back-lang').textContent = isAR ? 'تركي' : 'عربي';
+            document.getElementById('fc-front-word').textContent = isAR ? w.ar[0] : w.tr;
+            document.getElementById('fc-back-word').textContent = isAR ? w.tr : w.ar[0];
+            document.getElementById('fc-back-meanings').textContent = isAR ? '' : 'كل المعاني: ' + w.ar.join(' ، ');
+            setupPronounceBtn('fc-front-pron', isAR ? null : w.tr);
+            setupPronounceBtn('fc-back-pron', isAR ? w.tr : null);
+            document.getElementById('fc-counter').textContent = `${cardIndex + 1} من ${cardQueue.length}`;
+            document.getElementById('fc-progress').style.width = ((cardIndex / cardQueue.length) * 100) + '%';
+            document.getElementById('flashcard').classList.remove('flipped');
+        }
+        function flipCard() { document.getElementById('flashcard').classList.toggle('flipped'); }
+        function nextCard() { cardIndex++; showCard(); }
+        function markCard(know) {
+            if (know) { cardKnow++; document.getElementById('stat-know').textContent = cardKnow; }
+            else { cardLearn++; document.getElementById('stat-learn').textContent = cardLearn; }
+            cardIndex++; showCard();
+        }
+
+        // ---- EXAM ----
+        function formatExamDuration(ms) {
+            const s = Math.floor(ms / 1000);
+            const m = Math.floor(s / 60);
+            const r = s % 60;
+            return (m < 10 ? '0' : '') + m + ':' + (r < 10 ? '0' : '') + r;
+        }
+
+        function getExamGrade(pct) {
+            if (pct >= 90) return { label: 'ممتاز — أداء رائع! 🌟', cls: 'pct-high' };
+            if (pct >= 80) return { label: 'جيد جداً — استمر! 💪', cls: 'pct-high' };
+            if (pct >= 70) return { label: 'جيد — تحتاج مراجعة بسيطة 📖', cls: 'pct-mid' };
+            if (pct >= 60) return { label: 'مقبول — ركّز على الكلمات الضعيفة', cls: 'pct-mid' };
+            return { label: 'يحتاج تحسين — راجع المفردات 🔄', cls: 'pct-low' };
+        }
+
+        function showExamPanel(step) {
+            ['exam-setup', 'exam-game', 'exam-result'].forEach(id => {
+                document.getElementById(id).style.display = 'none';
+            });
+            document.getElementById(step).style.display = 'block';
+        }
+
+        function showExamSetup() {
+            stopExamTimer();
+            showExamPanel('exam-setup');
+        }
+
+        function buildExamQuestions(count, cat, mcqPct) {
+            const pool = shuffle(getFiltered(cat));
+            if (pool.length < count) count = pool.length;
+            let mcqCount = Math.round(count * mcqPct);
+            let writeCount = count - mcqCount;
+            if (mcqCount < 1 && count > 1) { mcqCount = 1; writeCount = count - 1; }
+            if (writeCount < 1 && count > 1) { writeCount = 1; mcqCount = count - 1; }
+            const used = pool.slice(0, count);
+            const items = [];
+            used.slice(0, mcqCount).forEach(w => {
+                const dir = Math.random() > 0.5 ? 'tr-ar' : 'ar-tr';
+                items.push({ type: 'mcq', w, dir });
+            });
+            used.slice(mcqCount, mcqCount + writeCount).forEach(w => {
+                items.push({ type: 'write', w, dir: 'ar-tr' });
+            });
+            return shuffle(items);
+        }
+
+        function startExam() {
+            const count = parseInt(document.getElementById('exam-count').value, 10);
+            const cat = document.getElementById('exam-cat').value;
+            const mcqPct = parseFloat(document.getElementById('exam-mcq-pct').value);
+            examQuestions = buildExamQuestions(count, cat, mcqPct);
+            examIndex = 0;
+            examCorrect = 0; examWrong = 0;
+            examMcqCorrect = 0; examMcqWrong = 0;
+            examWriteCorrect = 0; examWriteWrong = 0;
+            examMcqTotal = examQuestions.filter(q => q.type === 'mcq').length;
+            examWriteTotal = examQuestions.filter(q => q.type === 'write').length;
+            examWriteLocked = false;
+            examStartTime = Date.now();
+            showExamPanel('exam-game');
+            startExamTimer();
+            updateExamHud();
+            showExamQuestion();
+        }
+
+        function startExamTimer() {
+            stopExamTimer();
+            examTimerId = setInterval(() => {
+                document.getElementById('exam-timer').textContent = '⏱ ' + formatExamDuration(Date.now() - examStartTime);
+            }, 1000);
+        }
+
+        function stopExamTimer() {
+            if (examTimerId) { clearInterval(examTimerId); examTimerId = null; }
+        }
+
+        function updateExamHud() {
+            document.getElementById('exam-correct-n').textContent = examCorrect;
+            document.getElementById('exam-wrong-n').textContent = examWrong;
+            document.getElementById('exam-left-n').textContent = Math.max(0, examQuestions.length - examIndex);
+            document.getElementById('exam-progress').style.width = ((examIndex / examQuestions.length) * 100) + '%';
+            document.getElementById('exam-q-counter').textContent = (examIndex + 1) + ' / ' + examQuestions.length;
+        }
+
+        function showExamQuestion() {
+            if (examIndex >= examQuestions.length) { finishExam(); return; }
+            const q = examQuestions[examIndex];
+            updateExamHud();
+            const badge = document.getElementById('exam-type-badge');
+            document.getElementById('exam-mcq-block').style.display = q.type === 'mcq' ? 'block' : 'none';
+            document.getElementById('exam-write-block').style.display = q.type === 'write' ? 'block' : 'none';
+
+            if (q.type === 'mcq') {
+                badge.className = 'exam-type-badge badge-mcq';
+                badge.textContent = 'اختيار من متعدد';
+                showExamMcq(q);
+            } else {
+                badge.className = 'exam-type-badge badge-write';
+                badge.textContent = 'كتابة';
+                showExamWrite(q);
+            }
+        }
+
+        function showExamMcq(q) {
+            const { w, dir } = q;
+            const isArTr = dir === 'ar-tr';
+            document.getElementById('exam-mcq-label').textContent = isArTr ? 'ما الترجمة التركية لـ:' : 'ما الترجمة العربية لـ:';
+            document.getElementById('exam-mcq-word').textContent = isArTr ? w.ar[0] : w.tr;
+            setupPronounceBtn('exam-mcq-pron', isArTr ? null : w.tr);
+            document.getElementById('exam-mcq-next').style.display = 'none';
+            const pool = WORDS.filter(x => x !== w);
+            const wrongs = shuffle(pool).slice(0, 3);
+            const opts = shuffle([w, ...wrongs]);
+            const container = document.getElementById('exam-mcq-options');
+            container.innerHTML = '';
+            container.classList.remove('answered');
+            opts.forEach(opt => {
+                const btn = document.createElement('div');
+                btn.className = 'quiz-opt';
+                btn.textContent = isArTr ? opt.tr : opt.ar[0];
+                btn.onclick = () => answerExamMcq(btn, opt === w, w, isArTr, container);
+                container.appendChild(btn);
+            });
+        }
+
+        function answerExamMcq(btn, correct, w, isArTr, container) {
+            if (container.classList.contains('answered')) return;
+            container.classList.add('answered');
+            if (correct) {
+                examCorrect++; examMcqCorrect++;
+                btn.classList.add('correct');
+            } else {
+                examWrong++; examMcqWrong++;
+                btn.classList.add('wrong');
+                Array.from(container.children).forEach(b => {
+                    if ((isArTr && b.textContent === w.tr) || (!isArTr && b.textContent === w.ar[0])) b.classList.add('show-correct');
+                });
+            }
+            Array.from(container.children).forEach(b => b.style.cursor = 'default');
+            document.getElementById('exam-mcq-next').style.display = 'inline-block';
+            updateExamHud();
+        }
+
+        function examMcqNext() {
+            document.getElementById('exam-mcq-options').classList.remove('answered');
+            examIndex++;
+            showExamQuestion();
+        }
+
+        function showExamWrite(q) {
+            examWriteLocked = false;
+            const { w } = q;
+            document.getElementById('exam-write-prompt').textContent = 'اكتب الكلمة التركية:';
+            document.getElementById('exam-write-word').textContent = w.ar[0];
+            document.getElementById('exam-write-hint').textContent = 'المعاني: ' + w.ar.join(' ، ');
+            setupPronounceBtn('exam-write-pron', null);
+            document.getElementById('exam-write-input').value = '';
+            document.getElementById('exam-write-input').className = 'write-input';
+            document.getElementById('exam-write-input').style.direction = 'ltr';
+            document.getElementById('exam-write-feedback').textContent = '';
+            document.getElementById('exam-write-feedback').className = 'write-feedback';
+            document.getElementById('exam-write-answer').textContent = '';
+            document.getElementById('exam-write-next').style.display = 'none';
+            setTimeout(() => document.getElementById('exam-write-input').focus(), 100);
+        }
+
+        function checkExamWrite() {
+            if (examWriteLocked) { examWriteNext(); return; }
+            const q = examQuestions[examIndex];
+            const w = q.w;
+            const answer = document.getElementById('exam-write-input').value;
+            const match = [w.tr].some(c => normalize(c) === normalize(answer));
+            examWriteLocked = true;
+            if (match) {
+                examCorrect++; examWriteCorrect++;
+                document.getElementById('exam-write-input').classList.add('correct');
+                document.getElementById('exam-write-feedback').textContent = '✅ صحيح!';
+                document.getElementById('exam-write-feedback').className = 'write-feedback ok';
+                updateExamHud();
+                setTimeout(examWriteNext, 900);
+            } else {
+                examWrong++; examWriteWrong++;
+                document.getElementById('exam-write-input').classList.add('wrong');
+                document.getElementById('exam-write-feedback').textContent = '❌ خطأ';
+                document.getElementById('exam-write-feedback').className = 'write-feedback err';
+                document.getElementById('exam-write-answer').textContent = 'الإجابة: ' + w.tr;
+                document.getElementById('exam-write-next').style.display = 'inline-block';
+                updateExamHud();
+            }
+        }
+
+        function examWriteNext() {
+            examIndex++;
+            showExamQuestion();
+        }
+
+        function finishExam() {
+            stopExamTimer();
+            const duration = Date.now() - examStartTime;
+            const total = examQuestions.length;
+            const pct = total ? Math.round((examCorrect / total) * 100) : 0;
+            const grade = getExamGrade(pct);
+
+            showExamPanel('exam-result');
+            document.getElementById('cert-pct').textContent = pct + '%';
+            document.getElementById('cert-pct').className = 'cert-score-ring ' + grade.cls;
+            document.getElementById('cert-grade').textContent = grade.label;
+            document.getElementById('cert-mcq').textContent = examMcqCorrect + '/' + examMcqTotal;
+            document.getElementById('cert-write').textContent = examWriteCorrect + '/' + examWriteTotal;
+            document.getElementById('cert-total').textContent = examCorrect + '/' + total;
+            document.getElementById('cert-time').textContent = formatExamDuration(duration);
+        }
+
+        // ---- WRITE ----
+        function initWrite() {
+            const cat = document.getElementById('write-cat').value;
+            writeQueue = shuffle(getFiltered(cat));
+            writeIndex = 0; writeCorrectCount = 0; writeWrongCount = 0; writeRevealed = false;
+            document.getElementById('write-correct').textContent = 0;
+            document.getElementById('write-wrong').textContent = 0;
+            showWriteCard();
+        }
+        function showWriteCard() {
+            if (writeIndex >= writeQueue.length) {
+                document.getElementById('write-word').textContent = '🎉 انتهيت!';
+                document.getElementById('write-prompt').textContent = 'أحسنت!';
+                document.getElementById('write-hint-meanings').textContent = `صحيح: ${writeCorrectCount} | خطأ: ${writeWrongCount}`;
+                document.getElementById('write-input').value = '';
+                document.getElementById('write-counter').textContent = 'انتهت الكلمات!';
+                document.getElementById('write-progress').style.width = '100%';
+                setupPronounceBtn('write-pron', null);
+                return;
+            }
+            const w = writeQueue[writeIndex];
+            const dir = document.getElementById('write-dir').value;
+            const isArTr = dir === 'ar-tr';
+            document.getElementById('write-prompt').textContent = isArTr ? 'اكتب الكلمة التركية:' : 'اكتب الكلمة العربية:';
+            document.getElementById('write-word').textContent = isArTr ? w.ar[0] : w.tr;
+            setupPronounceBtn('write-pron', isArTr ? null : w.tr);
+            document.getElementById('write-hint-meanings').textContent = isArTr ? 'المعاني: ' + w.ar.join(' ، ') : '';
+            document.getElementById('write-input').value = '';
+            document.getElementById('write-input').className = 'write-input';
+            document.getElementById('write-input').style.direction = isArTr ? 'ltr' : 'rtl';
+            document.getElementById('write-feedback').textContent = '';
+            document.getElementById('write-answer-hint').textContent = '';
+            document.getElementById('write-counter').textContent = `${writeIndex + 1} من ${writeQueue.length}`;
+            document.getElementById('write-progress').style.width = ((writeIndex / writeQueue.length) * 100) + '%';
+            writeRevealed = false;
+            setTimeout(() => document.getElementById('write-input').focus(), 100);
+        }
+        function normalize(s) { return s.trim().toLowerCase().replace(/[ıİ]/g, c => c === 'ı' ? 'i' : 'i').replace(/[ğĞ]/g, 'g').replace(/[şŞ]/g, 's').replace(/[çÇ]/g, 'c').replace(/[öÖ]/g, 'o').replace(/[üÜ]/g, 'u'); }
+        function checkWrite() {
+            if (writeRevealed) { nextWriteCard(); return; }
+            const w = writeQueue[writeIndex];
+            const dir = document.getElementById('write-dir').value;
+            const isArTr = dir === 'ar-tr';
+            const answer = document.getElementById('write-input').value;
+            const correct = isArTr ? w.tr : w.ar[0];
+            const correct2 = isArTr ? [w.tr] : w.ar;
+            const match = correct2.some(c => normalize(c) === normalize(answer));
+            if (match) {
+                document.getElementById('write-input').classList.add('correct');
+                document.getElementById('write-feedback').textContent = '✅ صحيح!';
+                document.getElementById('write-feedback').className = 'write-feedback ok';
+                writeCorrectCount++;
+                document.getElementById('write-correct').textContent = writeCorrectCount;
+                writeRevealed = true;
+                setTimeout(() => { writeIndex++; showWriteCard(); }, 1200);
+            } else {
+                document.getElementById('write-input').classList.add('wrong');
+                document.getElementById('write-feedback').textContent = '❌ خطأ!';
+                document.getElementById('write-feedback').className = 'write-feedback err';
+                document.getElementById('write-answer-hint').textContent = 'الإجابة الصحيحة: ' + correct;
+                writeWrongCount++;
+                document.getElementById('write-wrong').textContent = writeWrongCount;
+                writeRevealed = true;
+                setTimeout(() => { document.getElementById('write-input').classList.remove('wrong'); }, 2000);
+            }
+        }
+        function showWriteHint() {
+            const w = writeQueue[writeIndex];
+            const dir = document.getElementById('write-dir').value;
+            const isArTr = dir === 'ar-tr';
+            const correct = isArTr ? w.tr : w.ar[0];
+            const half = correct.substring(0, Math.ceil(correct.length / 2));
+            document.getElementById('write-answer-hint').textContent = 'تلميح: ' + half + '...';
+        }
+        function skipWrite() { writeIndex++; showWriteCard(); }
+        function nextWriteCard() { writeIndex++; showWriteCard(); }
+
+        // ---- BROWSE ----
+        function setFilter(f, el) {
+            browseFilter = f;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            renderTable();
+        }
+        function renderTable() {
+            const q = document.getElementById('search-input').value.toLowerCase();
+            const filtered = WORDS.filter(w => {
+                const catOk = browseFilter === 'all' || w.cat === browseFilter;
+                const searchOk = !q || w.tr.toLowerCase().includes(q) || w.ar.some(a => a.includes(q));
+                return catOk && searchOk;
+            });
+            document.getElementById('result-count').textContent = `عرض ${filtered.length} من ${WORDS.length} كلمة`;
+            const catNames = { noun: 'اسم', verb: 'فعل', adj: 'صفة', other: 'أخرى' };
+            const catClasses = { noun: 'cat-noun', verb: 'cat-verb', adj: 'cat-adj', other: 'cat-other' };
+            const tbody = document.getElementById('word-tbody');
+            tbody.innerHTML = filtered.map(w => `
+    <tr>
+      <td class="tr-cell"><span class="tr-cell-inner">${escapeHtml(w.tr)}</span></td>
+      <td><button type="button" class="pronounce-btn pronounce-btn-sm" data-tr="${escapeAttr(w.tr)}" aria-label="نطق ${escapeAttr(w.tr)}" onclick="speakTurkish(this.dataset.tr,this)">${PRONOUNCE_ICON}</button></td>
+      <td class="ar-cell">${w.ar.join(' ، ')}</td>
+      <td><span class="cat-badge ${catClasses[w.cat]}">${catNames[w.cat]}</span></td>
+    </tr>
+  `).join('');
+        }
+
+        function escapeHtml(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+        function escapeAttr(s) { return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+
+        // INIT
+        initCards();
+        renderTable();
+    </script>
+</body>
+
+</html>

@@ -31,6 +31,7 @@ class UpdateProductRequest extends FormRequest
             'free_items' => 'nullable|integer|min:0|max:100000',
             'vat' => 'required|numeric|min:0|max:100',
             'date_of_create' => 'required|date',
+            'apply_company_discount' => 'nullable|boolean',
         ];
     }
 

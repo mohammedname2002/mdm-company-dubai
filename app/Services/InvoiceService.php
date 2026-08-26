@@ -117,4 +117,73 @@ public function store($request)
 
         return $invoices;
     }
+
+    public function getPrintDataForInvoice(Invoice $invoice): array
+    {
+        $invoice->load('company');
+
+        $products = Product::whereBetween('date_of_create', [$invoice->from, $invoice->to])
+            ->where('company_id', $invoice->company_id)
+            ->with('company')
+            ->get();
+
+        $subTotalPrice = 0;
+        $subTotalVat = 0;
+        $subTotalDiscounted = 0;
+        $subTotalDiscountedVat = 0;
+        $subTotalAmount = 0;
+        $companyDisc = (float) ($invoice->company->discount ?? 0);
+
+        foreach ($products as $product) {
+            $productPriceWithDiscont = $product->linePriceAfterDiscount($companyDisc);
+            $productPriceWithDiscontAndVat =
+                $productPriceWithDiscont + ($productPriceWithDiscont * $product->vat) / 100;
+            $unitVat = ($product->price * $product->vat) / 100;
+            $productWithVat = ($productPriceWithDiscont * $product->vat) / 100;
+
+            $subTotalPrice += $product->price * $product->quantity;
+            $subTotalVat += $unitVat * $product->quantity;
+            $subTotalDiscounted += $productPriceWithDiscont;
+            $subTotalDiscountedVat += $productWithVat;
+            $subTotalAmount += $productPriceWithDiscontAndVat;
+        }
+
+        $totalTotal = $products->sum(function ($product) use ($companyDisc) {
+            $productPriceWithDiscont = $product->linePriceAfterDiscount($companyDisc);
+
+            return $productPriceWithDiscont + ($productPriceWithDiscont * $product->vat / 100);
+        });
+
+        return [
+            'invoiceName' => $invoice,
+            'products' => $products,
+            'subTotalPrice' => $subTotalPrice,
+            'subTotalVat' => $subTotalVat,
+            'subTotalDiscounted' => $subTotalDiscounted,
+            'subTotalDiscountedVat' => $subTotalDiscountedVat,
+            'subTotalAmount' => $subTotalAmount,
+            'totalTotal' => $totalTotal,
+        ];
+    }
+
+    public function getCompanyInvoicesPrintData(?int $companyId = null, ?int $month = null, ?int $year = null): array
+    {
+        $company = $companyId ? Company::findOrFail($companyId) : null;
+
+        $invoices = Invoice::query()
+            ->forCompany($companyId)
+            ->forMonthYear($month, $year)
+            ->with('company')
+            ->orderBy('invoice_number')
+            ->get()
+            ->map(fn (Invoice $invoice) => $this->getPrintDataForInvoice($invoice))
+            ->all();
+
+        return [
+            'company' => $company,
+            'invoices' => $invoices,
+            'filterMonth' => $month,
+            'filterYear' => $year,
+        ];
+    }
 }
