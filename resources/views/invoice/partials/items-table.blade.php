@@ -18,17 +18,17 @@
 <table class="table table-bordered invoice-items-table">
     <thead>
         <tr>
-            <th>#</th>
-            <th class="aaa">Item</th>
-            <th class="aaa">Price</th>
-            <th class="aaa">VAT</th>
+            <th class="c-no">#</th>
+            <th class="aaa c-item">Item</th>
+            <th class="aaa c-price">Price</th>
+            <th class="aaa c-vat">VAT</th>
 
             @if($showDiscountInHeaders)
-                <th class="aaa">Price with Discount ({{ $companyDiscount }}%)</th>
-                <th class="aaa">VAT</th>
-                <th class="aaa">Price with Discount &amp; VAT</th>
+                <th class="aaa c-pricedisc">Price with Discount ({{ $companyDiscount }}%)</th>
+                <th class="aaa c-vatdisc">VAT</th>
+                <th class="aaa c-total">Price with Discount &amp; VAT</th>
             @else
-                <th class="aaa">Price with VAT</th>
+                <th class="aaa c-total">Price with VAT</th>
             @endif
         </tr>
     </thead>

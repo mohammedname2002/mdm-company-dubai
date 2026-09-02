@@ -6,7 +6,7 @@
     </div>
 </div>
 <div style="text-align:center" class="auth-logo">
-    <h2 id="tax" style="font-weight:600 !important">Tax Invoice </h2>
+    <h2 id="tax" style="font-weight:700 !important">Tax Invoice </h2>
 </div>
 
 <div class="row">

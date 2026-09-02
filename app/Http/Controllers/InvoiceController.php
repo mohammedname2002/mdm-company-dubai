@@ -204,18 +204,32 @@ return  view('invoice.show', [
         // Check if HTML is generated correctly
         \Log::info("HTML content generated");
 
-        // Initialize mPDF
+        // Initialize mPDF so the output matches the browser print of the
+        // preview page: US Letter, ~10mm page margins plus the 24px card
+        // offset, and the same Roboto font the preview is rendered with.
         try {
+            $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
+            $fontData = (new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'];
+
             $mpdf = new \Mpdf\Mpdf([
                 'mode' => 'utf-8',
-                'format' => 'A4',
-                'margin_left' => 10,
-                'margin_right' => 10,
-                'margin_top' => 12,
-                'margin_bottom' => 12,
+                'format' => 'Letter',
+                'margin_left' => 16.4,
+                'margin_right' => 16.14,
+                'margin_top' => 10.05,
+                'margin_bottom' => 10.05,
+                'fontDir' => array_merge($defaultConfig['fontDir'], [storage_path('fonts')]),
+                'fontdata' => $fontData + [
+                    'roboto' => [
+                        'R' => 'Roboto-Regular.ttf',
+                        'B' => 'Roboto-Bold.ttf',
+                    ],
+                ],
+                'default_font' => 'roboto',
                 'tempDir' => storage_path('app/mpdf'),
             ]);
             $mpdf->showImageErrors = false;
+            $mpdf->shrink_tables_to_fit = 1;
             $mpdf->WriteHTML($html);
 
             \Log::info("PDF generated and download triggered.");
