@@ -185,18 +185,20 @@ return  view('invoice.show', [
             return $product->getPriceWithVat(); // Assuming this method is defined to calculate price with VAT
         });
 
-        \Log::info("Data fetched: ", [
-            'products' => $products,
-            'invoiceName' => $invoiceName,
-            'totalWithVat' => $totalWithVat,
-            'totalWithVatAndDiscount' => $totalWithVatAndDiscount
-        ]);
+        // Same grand total formula used by the preview page (invoice.show)
+        $totalTotal = $products->sum(function ($product) use ($invoiceName) {
+            $companyDisc = (float) ($invoiceName->company->discount ?? 0);
+            $productPriceWithDiscont = $product->linePriceAfterDiscount($companyDisc);
+
+            return $productPriceWithDiscont + ($productPriceWithDiscont * $product->vat / 100);
+        });
 
         $html = view('invoice.download', [
             'products' => $products,
             'invoiceName' => $invoiceName,
             'totalWithVat' => $totalWithVat,
-            'totalWithVatAndDiscount' => $totalWithVatAndDiscount
+            'totalWithVatAndDiscount' => $totalWithVatAndDiscount,
+            'totalTotal' => $totalTotal,
         ])->render();
 
         // Check if HTML is generated correctly
@@ -204,13 +206,24 @@ return  view('invoice.show', [
 
         // Initialize mPDF
         try {
-            $mpdf = new \Mpdf\Mpdf();
+            $mpdf = new \Mpdf\Mpdf([
+                'mode' => 'utf-8',
+                'format' => 'A4',
+                'margin_left' => 10,
+                'margin_right' => 10,
+                'margin_top' => 12,
+                'margin_bottom' => 12,
+                'tempDir' => storage_path('app/mpdf'),
+            ]);
+            $mpdf->showImageErrors = false;
             $mpdf->WriteHTML($html);
 
-            // Force the PDF download
-            $mpdf->Output('invoice_' . $invoiceName->id . '.pdf', 'D'); // 'D' forces download
-
             \Log::info("PDF generated and download triggered.");
+
+            return response($mpdf->Output('', \Mpdf\Output\Destination::STRING_RETURN), 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="invoice_' . $invoiceName->id . '.pdf"',
+            ]);
         } catch (\Mpdf\MpdfException $e) {
             \Log::error('mPDF Error: ' . $e->getMessage());
             return response()->json(['error' => 'PDF generation failed!'], 500);

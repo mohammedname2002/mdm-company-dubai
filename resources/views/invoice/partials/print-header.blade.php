@@ -1,7 +1,7 @@
 <div class="clearfix">
     <div class="float-start">
         <div class="auth-logo">
-            <img src="{{ asset('assets/images/mdm.png') }}" alt="" height="70">
+            <img src="{{ $logoSrc ?? asset('assets/images/mdm.png') }}" alt="" height="70">
         </div>
     </div>
 </div>
